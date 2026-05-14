@@ -1,0 +1,63 @@
+services:
+  product-service:
+    image: shoppay-product-service:v1
+    container_name: product-service
+    ports:
+      - "4001:4001"
+    networks:
+      - shoppay-net
+
+  payment-service:
+    image: shoppay-payment-service:v1
+    container_name: payment-service
+    ports:
+      - "4003:4003"
+    networks:
+      - shoppay-net
+
+  contact-service:
+    image: shoppay-contact-service:v1
+    container_name: contact-service
+    ports:
+      - "4004:4004"
+    networks:
+      - shoppay-net
+
+  order-service:
+    image: shoppay-order-service:v1
+    container_name: order-service
+    ports:
+      - "4002:4002"
+    environment:
+      PAYMENT_SERVICE_URL: http://payment-service:4003
+    depends_on:
+      - payment-service
+    networks:
+      - shoppay-net
+
+  api-gateway:
+    image: shoppay-api-gateway:v1
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - product-service
+      - order-service
+      - payment-service
+      - contact-service
+    networks:
+      - shoppay-net
+
+  frontend:
+    image: shoppay-frontend:v4
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - shoppay-net
+
+networks:
+  shoppay-net:
+    driver: bridge
