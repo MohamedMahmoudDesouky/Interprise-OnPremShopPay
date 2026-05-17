@@ -14,6 +14,19 @@ export type Product = {
   description: string;
 };
 
+export type ProductPayload = {
+  id?: string;
+  name: string;
+  category: string;
+  price: number;
+  oldPrice?: number | null;
+  rating: number;
+  stock: string;
+  image: string;
+  badge: string;
+  description: string;
+};
+
 export type CartItem = {
   productId: string;
   quantity: number;
@@ -39,11 +52,39 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     throw new Error(errorText || `Request failed with status ${response.status}`);
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json();
 }
 
 export async function getProducts(): Promise<Product[]> {
   return request<Product[]>("/api/products");
+}
+
+export async function getProduct(id: string): Promise<Product> {
+  return request<Product>(`/api/products/${id}`);
+}
+
+export async function createProduct(data: ProductPayload): Promise<Product> {
+  return request<Product>("/api/products", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateProduct(id: string, data: ProductPayload): Promise<Product> {
+  return request<Product>(`/api/products/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteProduct(id: string): Promise<void> {
+  return request<void>(`/api/products/${id}`, {
+    method: "DELETE",
+  });
 }
 
 export async function sendContactMessage(data: {

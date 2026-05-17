@@ -4,12 +4,18 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "ShopPay | Modern Shopping Experience",
-  description: "A production-style shopping frontend with products, contact, and checkout pages."
+  title: "ShopPay Enterprise by Desouky",
+  description:
+    "A production-style cloud-native shopping platform built by Mohamed Desouky with Next.js, microservices, PostgreSQL, Docker, Kubernetes, Helm, and Kong Gateway.",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {

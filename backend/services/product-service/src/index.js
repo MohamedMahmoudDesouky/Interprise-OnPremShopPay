@@ -9,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 4001;
-
 const DATABASE_URL = process.env.DATABASE_URL;
 
 const fallbackProducts = [
@@ -93,6 +92,19 @@ const fallbackProducts = [
   },
 ];
 
+let pool = null;
+
+if (DATABASE_URL) {
+  pool = new Pool({
+    connectionString: DATABASE_URL,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  });
+} else {
+  console.warn("DATABASE_URL is not set. Product service will use fallback data.");
+}
+
 function mapProduct(row) {
   return {
     id: row.id,
@@ -108,17 +120,64 @@ function mapProduct(row) {
   };
 }
 
-let pool = null;
+function normalizeText(value) {
+  return String(value || "").trim();
+}
 
-if (DATABASE_URL) {
-  pool = new Pool({
-    connectionString: DATABASE_URL,
-    max: 10,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 5000,
-  });
-} else {
-  console.warn("DATABASE_URL is not set. Product service will use fallback data.");
+function validateProductPayload(data, mode = "create") {
+  const errors = [];
+
+  const price = Number(data.price);
+  const oldPrice =
+    data.oldPrice === undefined || data.oldPrice === null || data.oldPrice === ""
+      ? null
+      : Number(data.oldPrice);
+  const rating = Number(data.rating);
+
+  if (mode === "create" && !normalizeText(data.id)) {
+    errors.push("id is required");
+  }
+
+  if (!normalizeText(data.name)) errors.push("name is required");
+  if (!normalizeText(data.category)) errors.push("category is required");
+
+  if (!Number.isFinite(price) || price <= 0) {
+    errors.push("price must be greater than 0");
+  }
+
+  if (oldPrice !== null && (!Number.isFinite(oldPrice) || oldPrice <= 0)) {
+    errors.push("oldPrice must be greater than 0 when provided");
+  }
+
+  if (!Number.isFinite(rating)) {
+    errors.push("rating is required");
+  } else if (rating < 0 || rating > 5) {
+    errors.push("rating must be between 0 and 5");
+  }
+
+  if (!normalizeText(data.stock)) errors.push("stock is required");
+  if (!normalizeText(data.image)) errors.push("image is required");
+  if (!normalizeText(data.badge)) errors.push("badge is required");
+  if (!normalizeText(data.description)) errors.push("description is required");
+
+  return errors;
+}
+
+function getProductValues(data) {
+  return {
+    name: normalizeText(data.name),
+    category: normalizeText(data.category),
+    price: Number(data.price),
+    oldPrice:
+      data.oldPrice === undefined || data.oldPrice === null || data.oldPrice === ""
+        ? null
+        : Number(data.oldPrice),
+    rating: Number(data.rating),
+    stock: normalizeText(data.stock),
+    image: normalizeText(data.image),
+    badge: normalizeText(data.badge),
+    description: normalizeText(data.description),
+  };
 }
 
 async function initializeDatabase() {
@@ -133,11 +192,22 @@ async function initializeDatabase() {
       old_price NUMERIC(10, 2),
       rating NUMERIC(2, 1) NOT NULL,
       stock VARCHAR(100) NOT NULL,
-      image VARCHAR(20) NOT NULL,
+      image VARCHAR(500) NOT NULL,
       badge VARCHAR(100) NOT NULL,
       description TEXT NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT NOW()
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
     );
+  `);
+
+  await pool.query(`
+    ALTER TABLE products
+      ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+  `);
+
+  await pool.query(`
+    ALTER TABLE products
+      ALTER COLUMN image TYPE VARCHAR(500);
   `);
 
   for (const product of fallbackProducts) {
@@ -176,12 +246,13 @@ app.get("/health", async (req, res) => {
 
   try {
     await pool.query("SELECT 1");
+
     return res.status(200).json({
       status: "ok",
       service: "product-service",
       database: "connected",
     });
-  } catch (error) {
+  } catch {
     return res.status(503).json({
       status: "error",
       service: "product-service",
@@ -200,15 +271,13 @@ app.get("/api/products", async (req, res) => {
       SELECT
         id, name, category, price, old_price, rating, stock, image, badge, description
       FROM products
-      ORDER BY id ASC;
+      ORDER BY created_at DESC, id ASC;
     `);
 
     return res.json(result.rows.map(mapProduct));
   } catch (error) {
     console.error("Failed to fetch products:", error);
-    return res.status(500).json({
-      message: "Failed to fetch products",
-    });
+    return res.status(500).json({ message: "Failed to fetch products" });
   }
 });
 
@@ -241,9 +310,145 @@ app.get("/api/products/:id", async (req, res) => {
     return res.json(mapProduct(result.rows[0]));
   } catch (error) {
     console.error("Failed to fetch product:", error);
-    return res.status(500).json({
-      message: "Failed to fetch product",
+    return res.status(500).json({ message: "Failed to fetch product" });
+  }
+});
+
+app.post("/api/products", async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({
+      message: "Database is not configured. Product creation is unavailable.",
     });
+  }
+
+  const errors = validateProductPayload(req.body, "create");
+
+  if (errors.length > 0) {
+    return res.status(400).json({ message: "Invalid product data", errors });
+  }
+
+  const product = getProductValues(req.body);
+  const id = normalizeText(req.body.id);
+
+  try {
+    const result = await pool.query(
+      `
+      INSERT INTO products (
+        id, name, category, price, old_price, rating, stock, image, badge, description
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING id, name, category, price, old_price, rating, stock, image, badge, description;
+      `,
+      [
+        id,
+        product.name,
+        product.category,
+        product.price,
+        product.oldPrice,
+        product.rating,
+        product.stock,
+        product.image,
+        product.badge,
+        product.description,
+      ]
+    );
+
+    return res.status(201).json(mapProduct(result.rows[0]));
+  } catch (error) {
+    if (error.code === "23505") {
+      return res.status(409).json({
+        message: "Product id already exists",
+      });
+    }
+
+    console.error("Failed to create product:", error);
+    return res.status(500).json({ message: "Failed to create product" });
+  }
+});
+
+app.put("/api/products/:id", async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({
+      message: "Database is not configured. Product update is unavailable.",
+    });
+  }
+
+  const errors = validateProductPayload(req.body, "update");
+
+  if (errors.length > 0) {
+    return res.status(400).json({ message: "Invalid product data", errors });
+  }
+
+  const product = getProductValues(req.body);
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE products
+      SET
+        name = $1,
+        category = $2,
+        price = $3,
+        old_price = $4,
+        rating = $5,
+        stock = $6,
+        image = $7,
+        badge = $8,
+        description = $9,
+        updated_at = NOW()
+      WHERE id = $10
+      RETURNING id, name, category, price, old_price, rating, stock, image, badge, description;
+      `,
+      [
+        product.name,
+        product.category,
+        product.price,
+        product.oldPrice,
+        product.rating,
+        product.stock,
+        product.image,
+        product.badge,
+        product.description,
+        req.params.id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    return res.json(mapProduct(result.rows[0]));
+  } catch (error) {
+    console.error("Failed to update product:", error);
+    return res.status(500).json({ message: "Failed to update product" });
+  }
+});
+
+app.delete("/api/products/:id", async (req, res) => {
+  if (!pool) {
+    return res.status(503).json({
+      message: "Database is not configured. Product deletion is unavailable.",
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+      DELETE FROM products
+      WHERE id = $1
+      RETURNING id;
+      `,
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+    return res.status(500).json({ message: "Failed to delete product" });
   }
 });
 

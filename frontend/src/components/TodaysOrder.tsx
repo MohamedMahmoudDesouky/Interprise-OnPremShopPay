@@ -1,5 +1,5 @@
 "use client";
-
+import ProductMedia from "@/components/ProductMedia";
 import { useEffect, useMemo, useState } from "react";
 import { CartItem, getCart } from "@/lib/cart";
 
@@ -42,8 +42,9 @@ export default function TodaysOrder() {
         <div className="order-preview-list">
           {cart.map((item) => (
             <div className="order-preview-item" key={item.id}>
-              <span className="order-preview-icon">{item.image}</span>
-
+		<span className="order-preview-icon">
+ 		 <ProductMedia value={item.image} alt={item.name} />
+		</span>
               <div>
                 <strong>{item.name}</strong>
                 <small>

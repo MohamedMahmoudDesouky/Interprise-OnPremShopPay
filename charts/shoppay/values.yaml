@@ -217,7 +217,7 @@ productService:
 
   image:
     repository: selconyt/shoppay-product-service
-    tag: v2
+    tag: v4
     pullPolicy: IfNotPresent
 
   service:
@@ -345,3 +345,31 @@ orderService:
 ingress:
   enabled: true
   className: kong
+
+frontend:
+  enabled: true
+  name: frontend
+  namespace: shoppay-frontend
+  replicaCount: 1
+
+  image:
+    repository: selconyt/shoppay-frontend
+    tag: v7
+    pullPolicy: IfNotPresent
+
+  service:
+    type: NodePort
+    port: 3000
+    targetPort: 3000
+    nodePort: 30000
+
+  env:
+    port: "3000"
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi

@@ -1,5 +1,5 @@
 "use client";
-
+import ProductMedia from "@/components/ProductMedia";
 import { useState } from "react";
 import type { Product } from "@/lib/api";
 import { addToCart } from "@/lib/cart";
@@ -27,8 +27,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         <span className="rating">⭐ {product.rating}</span>
       </div>
 
-      <div className="product-image">{product.image}</div>
-
+	<div className="product-image">
+  	  <ProductMedia value={product.image} alt={product.name} />
+  	</div>
       <p className="product-category">{product.category}</p>
 
       <h3>{product.name}</h3>
