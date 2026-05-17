@@ -21,10 +21,24 @@ spec:
       labels:
         app.kubernetes.io/name: {{ .Values.productService.name }}
         app.kubernetes.io/part-of: shoppay
+      {{- if .Values.productService.vault.enabled }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: {{ .Values.productService.vault.role | quote }}
+        vault.hashicorp.com/agent-inject-secret-admin-auth.json: {{ .Values.productService.vault.secretPath | quote }}
+        vault.hashicorp.com/agent-inject-template-admin-auth.json: |
+          {{`{{- with secret "secret/data/shoppay/product-service/admin-auth" -}}`}}
+          {
+            "ADMIN_USERNAME": "{{`{{ .Data.data.ADMIN_USERNAME }}`}}",
+            "ADMIN_PASSWORD_HASH": "{{`{{ .Data.data.ADMIN_PASSWORD_HASH }}`}}",
+            "JWT_SECRET": "{{`{{ .Data.data.JWT_SECRET }}`}}"
+          }
+          {{`{{- end -}}`}}
+      {{- end }}
 
     spec:
       serviceAccountName: {{ .Values.serviceAccounts.productService.name }}
-      automountServiceAccountToken: false
+      automountServiceAccountToken: {{ ternary true false .Values.productService.vault.enabled }}
 
       securityContext:
         runAsNonRoot: true
@@ -57,6 +71,11 @@ spec:
 
             - name: DATABASE_URL
               value: "postgresql://{{ .Values.productService.env.databaseUser }}:$(PRODUCT_DB_PASSWORD)@{{ .Values.productService.env.databaseHost }}:{{ .Values.productService.env.databasePort }}/{{ .Values.productService.env.databaseName }}"
+
+            {{- if .Values.productService.vault.enabled }}
+            - name: VAULT_ADMIN_AUTH_FILE
+              value: {{ .Values.productService.vault.authFile | quote }}
+            {{- end }}
 
           readinessProbe:
             httpGet:

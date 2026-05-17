@@ -1045,3 +1045,45 @@ h2 { font-size: clamp(1.9rem, 3vw, 3rem); letter-spacing: -0.06em; }
     grid-template-columns: 1fr;
   }
 }
+
+.admin-login-layout {
+  width: min(520px, calc(100% - 32px));
+  margin: 0 auto 72px;
+}
+
+.admin-login-card {
+  width: 100%;
+}
+.admin-login-layout {
+  width: min(520px, calc(100% - 32px));
+  margin: 0 auto 72px;
+}
+
+.admin-login-card {
+  width: 100%;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-header-actions .danger-button {
+  color: #ffffff;
+  background: rgba(239, 68, 68, 0.26);
+  border: 1px solid rgba(239, 68, 68, 0.36);
+}
+.navLogout {
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  background: rgba(239, 68, 68, 0.18);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.navLogout:hover {
+  background: rgba(239, 68, 68, 0.3);
+}

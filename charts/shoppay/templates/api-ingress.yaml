@@ -8,8 +8,6 @@ metadata:
   labels:
     app.kubernetes.io/name: shoppay-api-ingress
     app.kubernetes.io/part-of: shoppay
-  annotations:
-    konghq.com/strip-path: "false"
 
 spec:
   ingressClassName: {{ .Values.ingress.className }}
@@ -18,6 +16,14 @@ spec:
     - http:
         paths:
           - path: /api/products
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 4001
+
+          - path: /api/admin
             pathType: Prefix
             backend:
               service:

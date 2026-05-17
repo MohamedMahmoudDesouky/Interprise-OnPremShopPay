@@ -217,7 +217,7 @@ productService:
 
   image:
     repository: selconyt/shoppay-product-service
-    tag: v4
+    tag: v5
     pullPolicy: IfNotPresent
 
   service:
@@ -234,6 +234,12 @@ productService:
     databaseSecretName: product-db-credentials
     databasePasswordKey: password
 
+  vault:
+    enabled: true
+    role: product-service
+    secretPath: secret/data/shoppay/product-service/admin-auth
+    authFile: /vault/secrets/admin-auth.json
+
   resources:
     requests:
       cpu: 100m
@@ -241,6 +247,8 @@ productService:
     limits:
       cpu: 500m
       memory: 512Mi
+
+
 
 contactService:
   enabled: true
@@ -354,7 +362,7 @@ frontend:
 
   image:
     repository: selconyt/shoppay-frontend
-    tag: v7
+    tag: v8
     pullPolicy: IfNotPresent
 
   service:

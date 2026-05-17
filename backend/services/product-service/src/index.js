@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import pg from "pg";
+import fs from "fs";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const { Pool } = pg;
 const app = express();
@@ -10,6 +13,8 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 4001;
 const DATABASE_URL = process.env.DATABASE_URL;
+const VAULT_ADMIN_AUTH_FILE =
+  process.env.VAULT_ADMIN_AUTH_FILE || "/vault/secrets/admin-auth.json";
 
 const fallbackProducts = [
   {
@@ -103,6 +108,108 @@ if (DATABASE_URL) {
   });
 } else {
   console.warn("DATABASE_URL is not set. Product service will use fallback data.");
+}
+
+function readAdminAuthConfig() {
+  let fileConfig = {};
+
+  if (fs.existsSync(VAULT_ADMIN_AUTH_FILE)) {
+    try {
+      fileConfig = JSON.parse(fs.readFileSync(VAULT_ADMIN_AUTH_FILE, "utf8"));
+    } catch (error) {
+      console.error("Failed to read Vault admin auth file:", error);
+    }
+  }
+
+  return {
+    adminUsername:
+      fileConfig.ADMIN_USERNAME ||
+      fileConfig.adminUsername ||
+      process.env.ADMIN_USERNAME ||
+      "",
+    adminPasswordHash:
+      fileConfig.ADMIN_PASSWORD_HASH ||
+      fileConfig.adminPasswordHash ||
+      process.env.ADMIN_PASSWORD_HASH ||
+      "",
+    jwtSecret:
+      fileConfig.JWT_SECRET ||
+      fileConfig.jwtSecret ||
+      process.env.JWT_SECRET ||
+      "",
+  };
+}
+
+function isAdminAuthConfigured() {
+  const config = readAdminAuthConfig();
+
+  return Boolean(
+    config.adminUsername &&
+      config.adminPasswordHash &&
+      config.jwtSecret
+  );
+}
+
+function createAdminToken(username) {
+  const { jwtSecret } = readAdminAuthConfig();
+
+  return jwt.sign(
+    {
+      sub: username,
+      role: "admin",
+      service: "product-service",
+    },
+    jwtSecret,
+    {
+      expiresIn: "2h",
+      issuer: "shoppay-product-service",
+      audience: "shoppay-admin",
+    }
+  );
+}
+
+function requireAdminAuth(req, res, next) {
+  const { jwtSecret } = readAdminAuthConfig();
+
+  if (!jwtSecret) {
+    return res.status(500).json({
+      message: "Admin authentication is not configured.",
+    });
+  }
+
+  const authorization = req.header("authorization") || "";
+
+  if (!authorization.startsWith("Bearer ")) {
+    return res.status(401).json({
+      message: "Admin token is required.",
+    });
+  }
+
+  const token = authorization.replace("Bearer ", "").trim();
+
+  try {
+    const payload = jwt.verify(token, jwtSecret, {
+      issuer: "shoppay-product-service",
+      audience: "shoppay-admin",
+    });
+
+    if (payload.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin role is required.",
+      });
+    }
+
+    req.admin = {
+      username: payload.sub,
+      role: payload.role,
+    };
+
+    return next();
+  } catch {
+    return res.status(401).json({
+      message: "Invalid or expired admin token.",
+    });
+  }
 }
 
 function mapProduct(row) {
@@ -241,6 +348,7 @@ app.get("/health", async (req, res) => {
       status: "ok",
       service: "product-service",
       database: "not_configured",
+      adminAuth: isAdminAuthConfigured() ? "configured" : "not_configured",
     });
   }
 
@@ -251,14 +359,65 @@ app.get("/health", async (req, res) => {
       status: "ok",
       service: "product-service",
       database: "connected",
+      adminAuth: isAdminAuthConfigured() ? "configured" : "not_configured",
     });
   } catch {
     return res.status(503).json({
       status: "error",
       service: "product-service",
       database: "unavailable",
+      adminAuth: isAdminAuthConfigured() ? "configured" : "not_configured",
     });
   }
+});
+
+app.post("/api/admin/login", async (req, res) => {
+  const { adminUsername, adminPasswordHash } = readAdminAuthConfig();
+
+  if (!adminUsername || !adminPasswordHash) {
+    return res.status(500).json({
+      message: "Admin authentication is not configured.",
+    });
+  }
+
+  const username = normalizeText(req.body.username);
+  const password = String(req.body.password || "");
+
+  if (!username || !password) {
+    return res.status(400).json({
+      message: "Username and password are required.",
+    });
+  }
+
+  if (username !== adminUsername) {
+    return res.status(401).json({
+      message: "Invalid admin credentials.",
+    });
+  }
+
+  const passwordMatches = await bcrypt.compare(password, adminPasswordHash);
+
+  if (!passwordMatches) {
+    return res.status(401).json({
+      message: "Invalid admin credentials.",
+    });
+  }
+
+  const token = createAdminToken(username);
+
+  return res.status(200).json({
+    token,
+    user: {
+      username,
+      role: "admin",
+    },
+  });
+});
+
+app.get("/api/admin/me", requireAdminAuth, (req, res) => {
+  return res.status(200).json({
+    user: req.admin,
+  });
 });
 
 app.get("/api/products", async (req, res) => {
@@ -314,7 +473,7 @@ app.get("/api/products/:id", async (req, res) => {
   }
 });
 
-app.post("/api/products", async (req, res) => {
+app.post("/api/products", requireAdminAuth, async (req, res) => {
   if (!pool) {
     return res.status(503).json({
       message: "Database is not configured. Product creation is unavailable.",
@@ -366,7 +525,7 @@ app.post("/api/products", async (req, res) => {
   }
 });
 
-app.put("/api/products/:id", async (req, res) => {
+app.put("/api/products/:id", requireAdminAuth, async (req, res) => {
   if (!pool) {
     return res.status(503).json({
       message: "Database is not configured. Product update is unavailable.",
@@ -424,7 +583,7 @@ app.put("/api/products/:id", async (req, res) => {
   }
 });
 
-app.delete("/api/products/:id", async (req, res) => {
+app.delete("/api/products/:id", requireAdminAuth, async (req, res) => {
   if (!pool) {
     return res.status(503).json({
       message: "Database is not configured. Product deletion is unavailable.",
