@@ -1,0 +1,243 @@
+global:
+  projectName: shoppay
+  environment: dev
+
+namespaces:
+  frontend: shoppay-frontend
+  gateway: shoppay-gateway
+  product: shoppay-product
+  order: shoppay-order
+  payment: shoppay-payment
+  contact: shoppay-contact
+  vault: shoppay-vault
+
+serviceAccounts:
+  frontend:
+    name: frontend-sa
+  apiGateway:
+    name: api-gateway-sa
+  productService:
+    name: product-service-sa
+  orderService:
+    name: order-service-sa
+  paymentService:
+    name: payment-service-sa
+  contactService:
+    name: contact-service-sa
+
+productPostgresql:
+  enabled: true
+
+orderPostgresql:
+  enabled: true
+
+paymentPostgresql:
+  enabled: true
+
+contactPostgresql:
+  enabled: true
+
+product-postgresql:
+  enabled: true
+  namespaceOverride: shoppay-product
+  architecture: standalone
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 17.6.0-debian-12-r4
+  auth:
+    username: product_user
+    database: productdb
+    existingSecret: product-db-credentials
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsGroup: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+
+order-postgresql:
+  enabled: true
+  namespaceOverride: shoppay-order
+  architecture: standalone
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 17.6.0-debian-12-r4
+  auth:
+    username: order_user
+    database: orderdb
+    existingSecret: order-db-credentials
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsGroup: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+
+payment-postgresql:
+  enabled: true
+  namespaceOverride: shoppay-payment
+  architecture: standalone
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 17.6.0-debian-12-r4
+  auth:
+    username: payment_user
+    database: paymentdb
+    existingSecret: payment-db-credentials
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsGroup: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+
+contact-postgresql:
+  enabled: true
+  namespaceOverride: shoppay-contact
+  architecture: standalone
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 17.6.0-debian-12-r4
+  auth:
+    username: contact_user
+    database: contactdb
+    existingSecret: contact-db-credentials
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+  primary:
+    persistence:
+      enabled: true
+      storageClass: local-path
+      size: 2Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsGroup: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+          - ALL
+      seccompProfile:
+        type: RuntimeDefault
+
+productService:
+  enabled: true
+  name: product-service
+  namespace: shoppay-product
+  replicaCount: 1
+
+  image:
+    repository: selconyt/shoppay-product-service
+    tag: v2
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 4001
+    targetPort: 4001
+
+  env:
+    port: "4001"
+    databaseHost: shoppay-product-postgresql
+    databasePort: "5432"
+    databaseName: productdb
+    databaseUser: product_user
+    databaseSecretName: product-db-credentials
+    databasePasswordKey: password
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
