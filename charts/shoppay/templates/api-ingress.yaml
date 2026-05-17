@@ -1,0 +1,52 @@
+{{- if .Values.ingress.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shoppay-api-ingress
+  namespace: {{ .Values.namespaces.gateway }}
+  labels:
+    app.kubernetes.io/name: shoppay-api-ingress
+    app.kubernetes.io/part-of: shoppay
+  annotations:
+    konghq.com/strip-path: "false"
+
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+
+  rules:
+    - http:
+        paths:
+          - path: /api/products
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 4001
+
+          - path: /api/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 4002
+
+          - path: /api/payments
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-service
+                port:
+                  number: 4003
+
+          - path: /api/contact
+            pathType: Prefix
+            backend:
+              service:
+                name: contact-service
+                port:
+                  number: 4004
+
+{{- end }}

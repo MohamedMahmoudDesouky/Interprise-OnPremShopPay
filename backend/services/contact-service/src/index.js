@@ -1,41 +1,179 @@
 import express from "express";
 import cors from "cors";
+import pg from "pg";
+
+const { Pool } = pg;
 
 const app = express();
-const PORT = process.env.PORT || 4004;
-const messages = [];
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/health", (req, res) => {
-  res.json({ status: "ok", service: "contact-service" });
-});
+const PORT = process.env.PORT || 4004;
+const DATABASE_URL = process.env.DATABASE_URL;
 
-app.post("/api/contact/messages", (req, res) => {
-  const { name, email, topic, message } = req.body;
+let pool = null;
 
-  if (!name || !email || !message) {
-    return res.status(400).json({ message: "name, email, and message are required" });
+if (DATABASE_URL) {
+  pool = new Pool({
+    connectionString: DATABASE_URL,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  });
+} else {
+  console.warn("DATABASE_URL is not set. Contact service will use in-memory storage.");
+}
+
+const inMemoryMessages = [];
+
+async function initializeDatabase() {
+  if (!pool) return;
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS contact_messages (
+      id VARCHAR(80) PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      topic VARCHAR(100) NOT NULL DEFAULT 'general',
+      message TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `);
+}
+
+function mapMessage(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    topic: row.topic,
+    message: row.message,
+    createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+  };
+}
+
+app.get("/health", async (req, res) => {
+  if (!pool) {
+    return res.status(200).json({
+      status: "ok",
+      service: "contact-service",
+      database: "not_configured",
+    });
   }
 
-  const savedMessage = {
+  try {
+    await pool.query("SELECT 1");
+
+    return res.status(200).json({
+      status: "ok",
+      service: "contact-service",
+      database: "connected",
+    });
+  } catch (error) {
+    return res.status(503).json({
+      status: "error",
+      service: "contact-service",
+      database: "unavailable",
+    });
+  }
+});
+
+app.post("/api/contact/messages", async (req, res) => {
+  const { name, email, topic = "general", message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.status(400).json({
+      message: "name, email, and message are required",
+    });
+  }
+
+  const contactMessage = {
     id: `msg-${Date.now()}`,
     name,
     email,
-    topic: topic || "general",
+    topic,
     message,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
   };
 
-  messages.push(savedMessage);
-  return res.status(201).json(savedMessage);
+  try {
+    if (!pool) {
+      inMemoryMessages.unshift(contactMessage);
+      return res.status(201).json(contactMessage);
+    }
+
+    const result = await pool.query(
+      `
+      INSERT INTO contact_messages (
+        id, name, email, topic, message, created_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, name, email, topic, message, created_at;
+      `,
+      [
+        contactMessage.id,
+        contactMessage.name,
+        contactMessage.email,
+        contactMessage.topic,
+        contactMessage.message,
+        contactMessage.createdAt,
+      ]
+    );
+
+    return res.status(201).json(mapMessage(result.rows[0]));
+  } catch (error) {
+    console.error("Failed to save contact message:", error);
+
+    return res.status(500).json({
+      message: "Failed to save contact message",
+    });
+  }
 });
 
-app.get("/api/contact/messages", (req, res) => {
-  res.json(messages);
+app.get("/api/contact/messages", async (req, res) => {
+  try {
+    if (!pool) {
+      return res.json(inMemoryMessages);
+    }
+
+    const result = await pool.query(`
+      SELECT id, name, email, topic, message, created_at
+      FROM contact_messages
+      ORDER BY created_at DESC;
+    `);
+
+    return res.json(result.rows.map(mapMessage));
+  } catch (error) {
+    console.error("Failed to fetch contact messages:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch contact messages",
+    });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`contact-service is running on port ${PORT}`);
+async function startServer() {
+  try {
+    await initializeDatabase();
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`contact-service is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Failed to start contact-service:", error);
+    process.exit(1);
+  }
+}
+
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, shutting down contact-service...");
+
+  if (pool) {
+    await pool.end();
+  }
+
+  process.exit(0);
 });
+
+startServer();

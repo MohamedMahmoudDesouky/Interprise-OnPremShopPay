@@ -241,3 +241,107 @@ productService:
     limits:
       cpu: 500m
       memory: 512Mi
+
+contactService:
+  enabled: true
+  name: contact-service
+  namespace: shoppay-contact
+  replicaCount: 1
+
+  image:
+    repository: selconyt/shoppay-contact-service
+    tag: v2
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 4004
+    targetPort: 4004
+
+  env:
+    port: "4004"
+    databaseHost: shoppay-contact-postgresql
+    databasePort: "5432"
+    databaseName: contactdb
+    databaseUser: contact_user
+    databaseSecretName: contact-db-credentials
+    databasePasswordKey: password
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+paymentService:
+  enabled: true
+  name: payment-service
+  namespace: shoppay-payment
+  replicaCount: 1
+
+  image:
+    repository: selconyt/shoppay-payment-service
+    tag: v2
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 4003
+    targetPort: 4003
+
+  env:
+    port: "4003"
+    databaseHost: shoppay-payment-postgresql
+    databasePort: "5432"
+    databaseName: paymentdb
+    databaseUser: payment_user
+    databaseSecretName: payment-db-credentials
+    databasePasswordKey: password
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+orderService:
+  enabled: true
+  name: order-service
+  namespace: shoppay-order
+  replicaCount: 1
+
+  image:
+    repository: selconyt/shoppay-order-service
+    tag: v2
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 4002
+    targetPort: 4002
+
+  env:
+    port: "4002"
+    databaseHost: shoppay-order-postgresql
+    databasePort: "5432"
+    databaseName: orderdb
+    databaseUser: order_user
+    databaseSecretName: order-db-credentials
+    databasePasswordKey: password
+    paymentServiceUrl: "http://payment-service.shoppay-payment.svc.cluster.local:4003"
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ingress:
+  enabled: true
+  className: kong
