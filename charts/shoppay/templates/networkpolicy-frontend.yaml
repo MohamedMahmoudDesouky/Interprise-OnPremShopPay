@@ -1,0 +1,67 @@
+{{- if and .Values.networkPolicies .Values.networkPolicies.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-default-deny
+  namespace: {{ .Values.namespaces.frontend }}
+  labels:
+    app.kubernetes.io/name: frontend-default-deny
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-allow-dns-egress
+  namespace: {{ .Values.namespaces.frontend }}
+  labels:
+    app.kubernetes.io/name: frontend-allow-dns-egress
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-allow-public-ingress
+  namespace: {{ .Values.namespaces.frontend }}
+  labels:
+    app.kubernetes.io/name: frontend-allow-public-ingress
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.frontend.name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: {{ .Values.frontend.service.targetPort }}
+
+{{- end }}

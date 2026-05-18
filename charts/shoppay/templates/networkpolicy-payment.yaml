@@ -1,0 +1,146 @@
+{{- if and .Values.networkPolicies .Values.networkPolicies.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-default-deny
+  namespace: {{ .Values.namespaces.payment }}
+  labels:
+    app.kubernetes.io/name: payment-default-deny
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-allow-dns-egress
+  namespace: {{ .Values.namespaces.payment }}
+  labels:
+    app.kubernetes.io/name: payment-allow-dns-egress
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-service-allow-ingress-from-gateway
+  namespace: {{ .Values.namespaces.payment }}
+  labels:
+    app.kubernetes.io/name: payment-service-allow-ingress-from-gateway
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.paymentService.name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+      ports:
+        - protocol: TCP
+          port: {{ .Values.paymentService.service.targetPort }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-service-allow-ingress-from-order-service
+  namespace: {{ .Values.namespaces.payment }}
+  labels:
+    app.kubernetes.io/name: payment-service-allow-ingress-from-order-service
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.paymentService.name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.order }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.orderService.name }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.paymentService.service.targetPort }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-service-allow-egress-to-payment-db
+  namespace: {{ .Values.namespaces.payment }}
+  labels:
+    app.kubernetes.io/name: payment-service-allow-egress-to-payment-db
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.paymentService.name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: payment-postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: payment-db-allow-ingress-from-payment-service
+  namespace: {{ .Values.namespaces.payment }}
+  labels:
+    app.kubernetes.io/name: payment-db-allow-ingress-from-payment-service
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: payment-postgresql
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.paymentService.name }}
+      ports:
+        - protocol: TCP
+          port: 5432
+
+{{- end }}

@@ -1,0 +1,146 @@
+{{- if and .Values.networkPolicies .Values.networkPolicies.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: product-default-deny
+  namespace: {{ .Values.namespaces.product }}
+  labels:
+    app.kubernetes.io/name: product-default-deny
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: product-allow-dns-egress
+  namespace: {{ .Values.namespaces.product }}
+  labels:
+    app.kubernetes.io/name: product-allow-dns-egress
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: product-service-allow-ingress-from-gateway
+  namespace: {{ .Values.namespaces.product }}
+  labels:
+    app.kubernetes.io/name: product-service-allow-ingress-from-gateway
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.productService.name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+      ports:
+        - protocol: TCP
+          port: {{ .Values.productService.service.targetPort }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: product-service-allow-egress-to-product-db
+  namespace: {{ .Values.namespaces.product }}
+  labels:
+    app.kubernetes.io/name: product-service-allow-egress-to-product-db
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.productService.name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: product-postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: product-db-allow-ingress-from-product-service
+  namespace: {{ .Values.namespaces.product }}
+  labels:
+    app.kubernetes.io/name: product-db-allow-ingress-from-product-service
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: product-postgresql
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.productService.name }}
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: product-service-allow-egress-to-vault
+  namespace: {{ .Values.namespaces.product }}
+  labels:
+    app.kubernetes.io/name: product-service-allow-egress-to-vault
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.productService.name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.vault }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: vault
+      ports:
+        - protocol: TCP
+          port: 8200
+
+{{- end }}

@@ -217,7 +217,7 @@ productService:
 
   image:
     repository: selconyt/shoppay-product-service
-    tag: v5
+    tag: v6
     pullPolicy: IfNotPresent
 
   service:
@@ -381,3 +381,6 @@ frontend:
     limits:
       cpu: 1000m
       memory: 1Gi
+
+networkPolicies:
+  enabled: true

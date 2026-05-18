@@ -1,0 +1,119 @@
+{{- if and .Values.networkPolicies .Values.networkPolicies.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: contact-default-deny
+  namespace: {{ .Values.namespaces.contact }}
+  labels:
+    app.kubernetes.io/name: contact-default-deny
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: contact-allow-dns-egress
+  namespace: {{ .Values.namespaces.contact }}
+  labels:
+    app.kubernetes.io/name: contact-allow-dns-egress
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: contact-service-allow-ingress-from-gateway
+  namespace: {{ .Values.namespaces.contact }}
+  labels:
+    app.kubernetes.io/name: contact-service-allow-ingress-from-gateway
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.contactService.name }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: gateway
+      ports:
+        - protocol: TCP
+          port: {{ .Values.contactService.service.targetPort }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: contact-service-allow-egress-to-contact-db
+  namespace: {{ .Values.namespaces.contact }}
+  labels:
+    app.kubernetes.io/name: contact-service-allow-egress-to-contact-db
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.contactService.name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: contact-postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: contact-db-allow-ingress-from-contact-service
+  namespace: {{ .Values.namespaces.contact }}
+  labels:
+    app.kubernetes.io/name: contact-db-allow-ingress-from-contact-service
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: contact-postgresql
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.contactService.name }}
+      ports:
+        - protocol: TCP
+          port: 5432
+
+{{- end }}

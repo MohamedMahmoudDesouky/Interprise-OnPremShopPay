@@ -106,9 +106,17 @@ if (DATABASE_URL) {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
   });
+
+  pool.on("error", (error) => {
+    console.error("Unexpected PostgreSQL pool error:", {
+      message: error.message,
+      code: error.code,
+    });
+  });
 } else {
   console.warn("DATABASE_URL is not set. Product service will use fallback data.");
 }
+
 
 function readAdminAuthConfig() {
   let fileConfig = {};
