@@ -1,10 +1,3 @@
-
-````bash
-cd /home/selcon/Downloads/Interprise-OnPremShopPay
-
-[ -f README.md ] && cp README.md README.old.md
-
-cat > README.md <<'EOF'
 # ShopPay Enterprise by Desouky
 
 ShopPay Enterprise is a production-style cloud-native e-commerce platform built with microservices, Kubernetes, Helm, Kong Gateway, PostgreSQL, HashiCorp Vault, strict NetworkPolicies, image security scanning, and a modern Next.js frontend.
