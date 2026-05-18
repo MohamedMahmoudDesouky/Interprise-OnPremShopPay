@@ -217,7 +217,7 @@ productService:
 
   image:
     repository: selconyt/shoppay-product-service
-    tag: v6
+    tag: v11
     pullPolicy: IfNotPresent
 
   service:
@@ -258,7 +258,7 @@ contactService:
 
   image:
     repository: selconyt/shoppay-contact-service
-    tag: v2
+    tag: v7
     pullPolicy: IfNotPresent
 
   service:
@@ -291,7 +291,7 @@ paymentService:
 
   image:
     repository: selconyt/shoppay-payment-service
-    tag: v2
+    tag: v7
     pullPolicy: IfNotPresent
 
   service:
@@ -324,7 +324,7 @@ orderService:
 
   image:
     repository: selconyt/shoppay-order-service
-    tag: v2
+    tag: v7
     pullPolicy: IfNotPresent
 
   service:
@@ -362,7 +362,7 @@ frontend:
 
   image:
     repository: selconyt/shoppay-frontend
-    tag: v8
+    tag: v17
     pullPolicy: IfNotPresent
 
   service:

@@ -200,4 +200,31 @@ spec:
         - protocol: TCP
           port: {{ .Values.contactService.service.targetPort }}
 
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gateway-proxy-allow-frontend-ingress
+  namespace: {{ .Values.namespaces.gateway }}
+  labels:
+    app.kubernetes.io/name: gateway-proxy-allow-frontend-ingress
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.frontend }}
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.frontend.name }}
+      ports:
+        - protocol: TCP
+          port: 8000
 {{- end }}

@@ -7,19 +7,21 @@ COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 
-FROM gcr.io/distroless/nodejs22-debian12:nonroot AS runner
+FROM node:22-alpine AS runner
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+# Remove npm from runtime image to reduce Trivy findings
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=4002
 
-COPY --chown=nonroot:nonroot --from=deps /app/node_modules ./node_modules
-COPY --chown=nonroot:nonroot package*.json ./
-COPY --chown=nonroot:nonroot src ./src
+COPY --chown=node:node --from=deps /app/node_modules ./node_modules
+COPY --chown=node:node package*.json ./
+COPY --chown=node:node src ./src
 
 EXPOSE 4002
 
-USER nonroot
+USER node
 
-CMD ["src/index.js"]
+CMD ["node", "src/index.js"]
