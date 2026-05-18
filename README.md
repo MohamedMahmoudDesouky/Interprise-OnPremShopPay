@@ -1,98 +1,271 @@
-# ShopPay Split Architecture
+تمام يا محمد، نكمل بمرحلة **README + Git cleanup** عشان المشروع يبقى متوثق ومترتب قبل ما نعمل commit.
 
-This version keeps the working frontend separate from the backend services so every part can later become its own Docker image and Kubernetes Deployment.
+## 1. اعمل README احترافي
 
-## Structure
+نفّذ:
 
-```text
-shoppay-split-devops/
-├── frontend/                         # Next.js UI
-│   └── Dockerfile                    # Empty on purpose, write the frontend image steps here later
-├── backend/
-│   └── services/
-│       ├── product-service/          # Products API
-│       │   └── Dockerfile            # Empty on purpose
-│       ├── order-service/            # Orders API
-│       │   └── Dockerfile            # Empty on purpose
-│       ├── payment-service/          # Mock payments API
-│       │   └── Dockerfile            # Empty on purpose
-│       └── contact-service/          # Contact messages API
-│           └── Dockerfile            # Empty on purpose
-└── api-gateway/                      # Nginx routing layer
-    ├── nginx.conf
-    └── Dockerfile                    # Empty on purpose
-```
+````bash
+cd /home/selcon/Downloads/Interprise-OnPremShopPay
 
-## Run frontend only
+[ -f README.md ] && cp README.md README.old.md
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+cat > README.md <<'EOF'
+# ShopPay Enterprise by Desouky
 
-Open:
+ShopPay Enterprise is a production-style cloud-native e-commerce platform built with microservices, Kubernetes, Helm, Kong Gateway, PostgreSQL, HashiCorp Vault, strict NetworkPolicies, image security scanning, and a modern Next.js frontend.
+
+The project demonstrates a real enterprise DevOps workflow: secure container builds, service isolation, API gateway routing, secret management, Kubernetes hardening, and production verification.
+
+---
+
+## Architecture
 
 ```text
-http://localhost:3000
-```
+Browser
+  |
+  v
+Frontend Service :30000
+  |
+  v
+Next.js /api Proxy
+  |
+  v
+Kong Gateway
+  |
+  +--> product-service  -> product PostgreSQL
+  +--> order-service    -> order PostgreSQL
+  |        |
+  |        v
+  |    payment-service  -> payment PostgreSQL
+  |
+  +--> contact-service  -> contact PostgreSQL
+````
 
-## Run backend services locally without Docker
+---
 
-Open one terminal per service:
+## Services
 
-```bash
-cd backend/services/product-service
-npm install
-PORT=4001 npm run dev
-```
+| Service         | Purpose                                      |
+| --------------- | -------------------------------------------- |
+| frontend        | Next.js web application                      |
+| product-service | Product catalog and admin product management |
+| order-service   | Order creation and payment orchestration     |
+| payment-service | Mock payment authorization                   |
+| contact-service | Contact message handling                     |
+| Kong Gateway    | API Gateway and routing layer                |
+| HashiCorp Vault | Secret injection and admin credentials       |
+| PostgreSQL      | Dedicated database per backend service       |
 
-```bash
-cd backend/services/payment-service
-npm install
-PORT=4003 npm run dev
-```
+---
 
-```bash
-cd backend/services/order-service
-npm install
-PORT=4002 PAYMENT_SERVICE_URL=http://localhost:4003 npm run dev
-```
-
-```bash
-cd backend/services/contact-service
-npm install
-PORT=4004 npm run dev
-```
-
-The API Gateway Dockerfile is intentionally empty for now. Until we write it, the frontend can call the gateway later through:
+## Kubernetes Namespaces
 
 ```text
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+shoppay-frontend
+shoppay-gateway
+shoppay-product
+shoppay-order
+shoppay-payment
+shoppay-contact
+shoppay-vault
 ```
 
-For quick direct testing without the gateway, you can test services directly:
+---
+
+## Security Features
+
+* Non-root containers
+* Runtime images without npm/npx
+* HashiCorp Vault Agent injection
+* JWT-based admin authentication
+* Dedicated ServiceAccounts
+* Dedicated PostgreSQL database per service
+* Strict Kubernetes NetworkPolicies
+* Kong Gateway API routing
+* Trivy image scanning
+* Current images have 0 Medium/High/Critical vulnerabilities
+* Frontend calls APIs through internal `/api` proxy instead of exposing backend URLs in the browser
+
+---
+
+## Current Production Images
+
+```text
+selconyt/shoppay-product-service:v11
+selconyt/shoppay-order-service:v7
+selconyt/shoppay-payment-service:v7
+selconyt/shoppay-contact-service:v7
+selconyt/shoppay-frontend:v17
+```
+
+---
+
+## Deploy
 
 ```bash
-curl http://localhost:4001/api/products
-curl http://localhost:4001/health
-curl http://localhost:4002/health
-curl http://localhost:4003/health
-curl http://localhost:4004/health
+helm lint charts/shoppay
+
+helm template shoppay charts/shoppay > /tmp/shoppay-rendered.yaml
+
+helm upgrade --install shoppay charts/shoppay
 ```
 
-## What each service owns
+---
 
-- `product-service`: products catalog
-- `order-service`: checkout and order creation
-- `payment-service`: mock payment authorization
-- `contact-service`: contact form messages
-- `api-gateway`: routes `/api/...` traffic to the correct backend service
+## Verify Production
 
-## Database note
+Run the production verification script:
 
-Database integration is not added here because PostgreSQL will be created later using Kubernetes. The services already contain `.env.example` files with a `DATABASE_URL` placeholder so we know where to connect the DB later.
+```bash
+./scripts/verify-production.sh
+```
 
-## Next step
+The script checks:
 
-After this split, the next DevOps step is writing Dockerfiles one by one, then building images, then creating Kubernetes Deployments and Services.
+* Pods status
+* Deployed images
+* Vault status
+* NetworkPolicies
+* Frontend `/api` proxy
+* Product API
+* Admin login
+* Contact message creation
+* Order to payment end-to-end flow
+
+---
+
+## Scan Images
+
+Run Trivy image scanning:
+
+```bash
+./scripts/scan-images.sh
+```
+
+Reports are saved under:
+
+```text
+reports/trivy/current
+```
+
+The current scan checks:
+
+```text
+MEDIUM
+HIGH
+CRITICAL
+```
+
+The current image set is clean:
+
+```text
+0 Medium
+0 High
+0 Critical
+```
+
+---
+
+## Frontend Access
+
+```text
+http://192.168.1.113:30000
+```
+
+The frontend uses the internal `/api` proxy.
+
+Example:
+
+```text
+http://192.168.1.113:30000/api/products
+```
+
+This request is proxied internally to Kong Gateway.
+
+---
+
+## Kong Gateway
+
+Kong Gateway is available for direct API testing:
+
+```text
+http://192.168.1.113:30080/api/products
+```
+
+Opening the Kong root path may return:
+
+```text
+no Route matched with those values
+```
+
+This is expected because only `/api/*` routes are configured.
+
+---
+
+## Vault Notes
+
+Vault is deployed in standalone mode.
+
+Check Vault status:
+
+```bash
+kubectl exec -n shoppay-vault vault-0 -- vault status
+```
+
+If Vault is sealed after a restart, unseal it:
+
+```bash
+VAULT_UNSEAL_KEY=$(grep 'Unseal Key 1:' /tmp/vault-init.txt | awk '{print $4}')
+
+kubectl exec -n shoppay-vault vault-0 -- vault operator unseal "$VAULT_UNSEAL_KEY"
+```
+
+If `product-service` is stuck in `Init:0/1`, check Vault first.
+
+---
+
+## Useful Commands
+
+Check all ShopPay pods:
+
+```bash
+kubectl get pods -A | grep shoppay
+```
+
+Check all NetworkPolicies:
+
+```bash
+kubectl get networkpolicy -n shoppay-product
+kubectl get networkpolicy -n shoppay-order
+kubectl get networkpolicy -n shoppay-payment
+kubectl get networkpolicy -n shoppay-contact
+kubectl get networkpolicy -n shoppay-frontend
+kubectl get networkpolicy -n shoppay-gateway
+```
+
+Check current deployed images:
+
+```bash
+kubectl get deploy -n shoppay-product product-service -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl get deploy -n shoppay-order order-service -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl get deploy -n shoppay-payment payment-service -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl get deploy -n shoppay-contact contact-service -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+kubectl get deploy -n shoppay-frontend frontend -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+```
+
+---
+
+## Production Verification Status
+
+The latest production verification passed:
+
+```text
+Pods Running
+Vault unsealed
+NetworkPolicies applied
+Frontend proxy working
+Kong routes working
+Admin login working
+Contact service working
+Order to Payment flow working
+Trivy scan clean for Medium/High/Critical vulnerabilities

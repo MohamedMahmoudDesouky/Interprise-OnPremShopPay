@@ -1,0 +1,5 @@
+
+selconyt/shoppay-frontend:v17 (alpine 3.23.4)
+=============================================
+Total: 0 (MEDIUM: 0, HIGH: 0, CRITICAL: 0)
+
