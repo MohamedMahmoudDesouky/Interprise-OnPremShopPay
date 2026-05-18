@@ -1,0 +1,53 @@
+
+selconyt/shoppay-payment-service:v2 (debian 12.13)
+==================================================
+Total: 6 (HIGH: 5, CRITICAL: 1)
+
+┌─────────┬────────────────┬──────────┬────────┬───────────────────┬──────────────────┬──────────────────────────────────────────────────────────────┐
+│ Library │ Vulnerability  │ Severity │ Status │ Installed Version │  Fixed Version   │                            Title                             │
+├─────────┼────────────────┼──────────┼────────┼───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libc6   │ CVE-2026-0861  │ HIGH     │ fixed  │ 2.36-9+deb12u13   │ 2.36-9+deb12u14  │ glibc: Integer overflow in memalign leads to heap corruption │
+│         │                │          │        │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-0861                    │
+├─────────┼────────────────┼──────────┤        ├───────────────────┼──────────────────┼──────────────────────────────────────────────────────────────┤
+│ libssl3 │ CVE-2026-31789 │ CRITICAL │        │ 3.0.18-1~deb12u2  │ 3.0.19-1~deb12u2 │ openssl: OpenSSL: Heap buffer overflow on 32-bit systems     │
+│         │                │          │        │                   │                  │ from large X.509 certificate...                              │
+│         │                │          │        │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-31789                   │
+│         ├────────────────┼──────────┤        │                   │                  ├──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-28387 │ HIGH     │        │                   │                  │ openssl: OpenSSL: Arbitrary code execution due to            │
+│         │                │          │        │                   │                  │ use-after-free in DANE TLSA authentication...                │
+│         │                │          │        │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-28387                   │
+│         ├────────────────┤          │        │                   │                  ├──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-28388 │          │        │                   │                  │ openssl: OpenSSL: Denial of Service due to NULL pointer      │
+│         │                │          │        │                   │                  │ dereference in delta...                                      │
+│         │                │          │        │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-28388                   │
+│         ├────────────────┤          │        │                   │                  ├──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-28389 │          │        │                   │                  │ openssl: OpenSSL: Denial of Service vulnerability in CMS     │
+│         │                │          │        │                   │                  │ processing                                                   │
+│         │                │          │        │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-28389                   │
+│         ├────────────────┤          │        │                   │                  ├──────────────────────────────────────────────────────────────┤
+│         │ CVE-2026-28390 │          │        │                   │                  │ openssl: OpenSSL: Denial of Service due to NULL pointer      │
+│         │                │          │        │                   │                  │ dereference in CMS...                                        │
+│         │                │          │        │                   │                  │ https://avd.aquasec.com/nvd/cve-2026-28390                   │
+└─────────┴────────────────┴──────────┴────────┴───────────────────┴──────────────────┴──────────────────────────────────────────────────────────────┘
+
+Node.js (node-pkg)
+==================
+Total: 4 (HIGH: 4, CRITICAL: 0)
+
+┌───────────────────────────────┬────────────────┬──────────┬────────┬───────────────────┬────────────────────────────────────┬──────────────────────────────────────────────────────────────┐
+│            Library            │ Vulnerability  │ Severity │ Status │ Installed Version │           Fixed Version            │                            Title                             │
+├───────────────────────────────┼────────────────┼──────────┼────────┼───────────────────┼────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ body-parser (package.json)    │ CVE-2024-45590 │ HIGH     │ fixed  │ 1.20.2            │ 1.20.3                             │ body-parser: Denial of Service Vulnerability in body-parser  │
+│                               │                │          │        │                   │                                    │ https://avd.aquasec.com/nvd/cve-2024-45590                   │
+├───────────────────────────────┼────────────────┤          │        ├───────────────────┼────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│ path-to-regexp (package.json) │ CVE-2024-45296 │          │        │ 0.1.7             │ 1.9.0, 0.1.10, 8.0.0, 3.3.0, 6.3.0 │ path-to-regexp: Backtracking regular expressions cause ReDoS │
+│                               │                │          │        │                   │                                    │ https://avd.aquasec.com/nvd/cve-2024-45296                   │
+│                               ├────────────────┤          │        │                   ├────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                               │ CVE-2024-52798 │          │        │                   │ 0.1.12                             │ path-to-regexp: path-to-regexp Unpatched `path-to-regexp`    │
+│                               │                │          │        │                   │                                    │ ReDoS in 0.1.x                                               │
+│                               │                │          │        │                   │                                    │ https://avd.aquasec.com/nvd/cve-2024-52798                   │
+│                               ├────────────────┤          │        │                   ├────────────────────────────────────┼──────────────────────────────────────────────────────────────┤
+│                               │ CVE-2026-4867  │          │        │                   │ 0.1.13                             │ path-to-regexp: path-to-regexp: Denial of Service via        │
+│                               │                │          │        │                   │                                    │ catastrophic backtracking from malformed URL parameters...   │
+│                               │                │          │        │                   │                                    │ https://avd.aquasec.com/nvd/cve-2026-4867                    │
+└───────────────────────────────┴────────────────┴──────────┴────────┴───────────────────┴────────────────────────────────────┴──────────────────────────────────────────────────────────────┘
