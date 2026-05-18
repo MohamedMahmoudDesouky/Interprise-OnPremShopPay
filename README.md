@@ -1,8 +1,3 @@
-تمام يا محمد، نكمل بمرحلة **README + Git cleanup** عشان المشروع يبقى متوثق ومترتب قبل ما نعمل commit.
-
-## 1. اعمل README احترافي
-
-نفّذ:
 
 ````bash
 cd /home/selcon/Downloads/Interprise-OnPremShopPay
