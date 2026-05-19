@@ -1,0 +1,18 @@
+stages:
+  - validate
+
+helm_lint_template:
+  stage: validate
+  image:
+    name: alpine/helm:3.15.4
+    entrypoint: [""]
+  script:
+    - helm version
+    - helm lint charts/shoppay
+    - helm template shoppay charts/shoppay > shoppay-rendered.yaml
+    - grep -n "shoppay-product-service\|shoppay-order-service\|shoppay-payment-service\|shoppay-contact-service\|shoppay-frontend" shoppay-rendered.yaml
+  artifacts:
+    when: always
+    paths:
+      - shoppay-rendered.yaml
+    expire_in: 7 days
