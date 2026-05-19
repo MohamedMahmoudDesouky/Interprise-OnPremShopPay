@@ -16,3 +16,13 @@ helm_lint_template:
     paths:
       - shoppay-rendered.yaml
     expire_in: 7 days
+
+frontend_build:
+  stage: validate
+  image: node:22-alpine
+  script:
+    - node --version
+    - npm --version
+    - cd frontend
+    - npm ci
+    - npm run build
