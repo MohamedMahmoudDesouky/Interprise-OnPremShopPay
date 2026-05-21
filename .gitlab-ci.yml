@@ -1,28 +1,189 @@
 stages:
   - validate
+  - build
+  - security
+  - package
 
-helm_lint_template:
+variables:
+  DOCKER_DRIVER: overlay2
+
+default:
+  tags:
+    - shoppay
+
+# =========================
+# FRONTEND VALIDATION
+# =========================
+
+frontend_lint:
   stage: validate
-  image:
-    name: alpine/helm:3.15.4
-    entrypoint: [""]
+  image: node:22-alpine
+  before_script:
+    - cd frontend
+    - npm ci
   script:
-    - helm version
-    - helm lint charts/shoppay
-    - helm template shoppay charts/shoppay > shoppay-rendered.yaml
-    - grep -n "shoppay-product-service\|shoppay-order-service\|shoppay-payment-service\|shoppay-contact-service\|shoppay-frontend" shoppay-rendered.yaml
-  artifacts:
-    when: always
-    paths:
-      - shoppay-rendered.yaml
-    expire_in: 7 days
+    - npm run lint
 
 frontend_build:
   stage: validate
   image: node:22-alpine
-  script:
-    - node --version
-    - npm --version
+  before_script:
     - cd frontend
     - npm ci
+  script:
     - npm run build
+  variables:
+    NEXT_PUBLIC_API_BASE_URL: "http://localhost:30080"
+
+# =========================
+# BACKEND VALIDATION
+# =========================
+
+backend_product_build:
+  stage: validate
+  image: node:22-alpine
+  before_script:
+    - cd backend/services/product-service
+    - npm ci
+  script:
+    - node --check src/index.js
+
+backend_order_build:
+  stage: validate
+  image: node:22-alpine
+  before_script:
+    - cd backend/services/order-service
+    - npm ci
+  script:
+    - node --check src/index.js
+
+backend_payment_build:
+  stage: validate
+  image: node:22-alpine
+  before_script:
+    - cd backend/services/payment-service
+    - npm ci
+  script:
+    - node --check src/index.js
+
+backend_contact_build:
+  stage: validate
+  image: node:22-alpine
+  before_script:
+    - cd backend/services/contact-service
+    - npm ci
+  script:
+    - node --check src/index.js
+
+# =========================
+# HELM VALIDATION
+# =========================
+
+helm_validate:
+  stage: validate
+  image: alpine/helm:3.15.4
+  script:
+    - helm lint charts/shoppay
+    - helm template shoppay charts/shoppay > shoppay-rendered.yaml
+    - grep -n "shoppay-product-service" shoppay-rendered.yaml
+  artifacts:
+    paths:
+      - shoppay-rendered.yaml
+
+# =========================
+# DOCKER BUILDS
+# =========================
+
+docker_build_frontend:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker build -t shoppay-frontend:test ./frontend
+
+docker_build_product:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker build -t shoppay-product:test ./backend/services/product-service
+
+docker_build_order:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker build -t shoppay-order:test ./backend/services/order-service
+
+docker_build_payment:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker build -t shoppay-payment:test ./backend/services/payment-service
+
+docker_build_contact:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker build -t shoppay-contact:test ./backend/services/contact-service
+
+# =========================
+# TRIVY SECURITY SCAN
+# =========================
+
+trivy_frontend:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 shoppay-frontend:test
+
+trivy_product:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 shoppay-product:test
+
+trivy_order:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 shoppay-order:test
+
+trivy_payment:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 shoppay-payment:test
+
+trivy_contact:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 shoppay-contact:test
