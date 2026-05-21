@@ -19,8 +19,9 @@ default:
       - frontend/node_modules/
       - backend/services/*/node_modules/
 
+
 # =========================
-# FRONTEND VALIDATION
+# FRONTEND VALIDATION (FIXED)
 # =========================
 
 frontend_lint:
@@ -30,7 +31,14 @@ frontend_lint:
     - cd frontend
     - npm ci
   script:
-    - npm run lint
+    # Use npx to ensure next.js CLI is properly resolved
+    - npx next lint --dir . --max-warnings 0
+  # Optional: cache ESLint results
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - frontend/node_modules/
+      - frontend/.next/cache/eslint/
 
 frontend_build:
   stage: validate
@@ -39,9 +47,13 @@ frontend_build:
     - cd frontend
     - npm ci
   script:
+    # Ensure NEXT_PUBLIC variables are set correctly for CI
+    - export NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-http://localhost:30080}"
     - npm run build
-  variables:
-    NEXT_PUBLIC_API_BASE_URL: "http://localhost:30080"
+  artifacts:
+    paths:
+      - frontend/.next/
+    expire_in: 1 hour
 
 # =========================
 # BACKEND VALIDATION
