@@ -9,7 +9,6 @@ variables:
 
 default:
   tags:
-    - shoppay
 
 # =========================
 # FRONTEND VALIDATION
