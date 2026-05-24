@@ -59,19 +59,20 @@ export default function CheckoutPage() {
   const [statusType, setStatusType] = useState<"success" | "error">("success");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
+  function syncCart() {
     setCart(getCart());
+  }
 
-    function syncCart() {
-      setCart(getCart());
-    }
+  syncCart();
 
-    window.addEventListener("cart-updated", syncCart);
+  window.addEventListener("cart-updated", syncCart);
 
-    return () => {
-      window.removeEventListener("cart-updated", syncCart);
-    };
-  }, []);
+  return () => {
+    window.removeEventListener("cart-updated", syncCart);
+  };
+}, []);
+
 
   const total = useMemo(() => {
     return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);

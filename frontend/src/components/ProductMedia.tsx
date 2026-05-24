@@ -1,3 +1,6 @@
+import Image from 'next/image';
+import { useState } from 'react';
+
 type ProductMediaProps = {
   value: string;
   alt: string;
@@ -9,10 +12,20 @@ function isImageUrl(value: string) {
 }
 
 export default function ProductMedia({ value, alt, className = "" }: ProductMediaProps) {
-  if (isImageUrl(value)) {
+  const [imgError, setImgError] = useState(false);
+
+  if (isImageUrl(value) && !imgError) {
     return (
       <span className={`product-media product-media-image ${className}`}>
-        <img src={value} alt={alt} loading="lazy" />
+        <Image
+          src={value}
+          alt={alt}
+          loading="lazy"
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          style={{ objectFit: 'contain' }}
+          onError={() => setImgError(true)}
+        />
       </span>
     );
   }

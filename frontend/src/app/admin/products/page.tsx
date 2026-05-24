@@ -51,10 +51,13 @@ export default function AdminProductsPage() {
     }
   }
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
+useEffect(() => {
+  async function init() {
+    await loadProducts();
+  }
 
+  void init();
+}, []);
   const filteredProducts = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 

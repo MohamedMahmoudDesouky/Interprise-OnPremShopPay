@@ -29,7 +29,7 @@ export default function TodaysOrder() {
   return (
     <div className="order-preview-card">
       <div className="order-preview-header">
-        <span>Today's order</span>
+        <span>Today&apos;s order</span>
         <strong>${total.toFixed(2)}</strong>
       </div>
 
