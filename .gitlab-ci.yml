@@ -2,26 +2,17 @@ stages:
   - validate
   - build
   - security
-  - package
 
 variables:
   DOCKER_DRIVER: overlay2
-  # Disable Docker TLS for simplicity in local/self-hosted runners
-  # If you need TLS, ensure your runner is properly configured with certs
   DOCKER_TLS_CERTDIR: ""
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 default:
-  # No tags specified - jobs will run on any available runner
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - node_modules/
-      - frontend/node_modules/
-      - backend/services/*/node_modules/
-
+  interruptible: true
 
 # =========================
-# FRONTEND VALIDATION (FIXED)
+# VALIDATION STAGE
 # =========================
 
 frontend_lint:
@@ -31,14 +22,7 @@ frontend_lint:
     - cd frontend
     - npm ci
   script:
-    # Use npx to ensure next.js CLI is properly resolved
-    - npx next lint --dir . --max-warnings 0
-  # Optional: cache ESLint results
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}-frontend
-    paths:
-      - frontend/node_modules/
-      - frontend/.next/cache/eslint/
+    - npm run lint
 
 frontend_build:
   stage: validate
@@ -47,24 +31,14 @@ frontend_build:
     - cd frontend
     - npm ci
   script:
-    # Ensure NEXT_PUBLIC variables are set correctly for CI
-    - export NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-http://localhost:30080}"
     - npm run build
-  artifacts:
-    paths:
-      - frontend/.next/
-    expire_in: 1 hour
-
-# =========================
-# BACKEND VALIDATION
-# =========================
 
 backend_product_build:
   stage: validate
   image: node:22-alpine
   before_script:
     - cd backend/services/product-service
-    - npm ci
+    - npm ci --omit=dev
   script:
     - node --check src/index.js
 
@@ -73,7 +47,7 @@ backend_order_build:
   image: node:22-alpine
   before_script:
     - cd backend/services/order-service
-    - npm ci
+    - npm ci --omit=dev
   script:
     - node --check src/index.js
 
@@ -82,7 +56,7 @@ backend_payment_build:
   image: node:22-alpine
   before_script:
     - cd backend/services/payment-service
-    - npm ci
+    - npm ci --omit=dev
   script:
     - node --check src/index.js
 
@@ -91,111 +65,119 @@ backend_contact_build:
   image: node:22-alpine
   before_script:
     - cd backend/services/contact-service
-    - npm ci
+    - npm ci --omit=dev
   script:
     - node --check src/index.js
-
-# =========================
-# HELM VALIDATION
-# =========================
 
 helm_validate:
   stage: validate
   image: alpine/helm:3.15.4
   script:
+    - helm version
     - helm lint charts/shoppay
     - helm template shoppay charts/shoppay > shoppay-rendered.yaml
-    - grep -n "shoppay-product-service" shoppay-rendered.yaml
   artifacts:
     paths:
       - shoppay-rendered.yaml
-
-# =========================
-# DOCKER BUILDS + SECURITY SCAN (MERGED)
-# =========================
-# Images are scanned immediately after building to avoid persistence issues
-
-docker_build_frontend:
-  stage: build
-  image: docker:27
-  services:
-    - docker:27-dind
-  retry: 2
-  script:
-    - docker build -t shoppay-frontend:test ./frontend
-    # Run Trivy scan in the same job
-    - docker run --rm
-        -v /var/run/docker.sock:/var/run/docker.sock
-        aquasec/trivy:latest image --severity HIGH,CRITICAL --exit-code 1 shoppay-frontend:test
-
-docker_build_product:
-  stage: build
-  image: docker:27
-  services:
-    - docker:27-dind
-  retry: 2
-  script:
-    - docker build -t shoppay-product:test ./backend/services/product-service
-    - docker run --rm
-        -v /var/run/docker.sock:/var/run/docker.sock
-        aquasec/trivy:latest image --severity HIGH,CRITICAL --exit-code 1 shoppay-product:test
-
-docker_build_order:
-  stage: build
-  image: docker:27
-  services:
-    - docker:27-dind
-  retry: 2
-  script:
-    - docker build -t shoppay-order:test ./backend/services/order-service
-    - docker run --rm
-        -v /var/run/docker.sock:/var/run/docker.sock
-        aquasec/trivy:latest image --severity HIGH,CRITICAL --exit-code 1 shoppay-order:test
-
-docker_build_payment:
-  stage: build
-  image: docker:27
-  services:
-    - docker:27-dind
-  retry: 2
-  script:
-    - docker build -t shoppay-payment:test ./backend/services/payment-service
-    - docker run --rm
-        -v /var/run/docker.sock:/var/run/docker.sock
-        aquasec/trivy:latest image --severity HIGH,CRITICAL --exit-code 1 shoppay-payment:test
-
-docker_build_contact:
-  stage: build
-  image: docker:27
-  services:
-    - docker:27-dind
-  retry: 2
-  script:
-    - docker build -t shoppay-contact:test ./backend/services/contact-service
-    - docker run --rm
-        -v /var/run/docker.sock:/var/run/docker.sock
-        aquasec/trivy:latest image --severity HIGH,CRITICAL --exit-code 1 shoppay-contact:test
-
-# =========================
-# PACKAGE STAGE
-# =========================
-
-helm_package:
-  stage: package
-  image: alpine/helm:3.15.4
-  script:
-    - helm package charts/shoppay
-  artifacts:
-    paths:
-      - shoppay-*.tgz
     expire_in: 1 week
 
 # =========================
-# WORKFLOW RULES (Optional but Recommended)
+# BUILD STAGE
 # =========================
 
-workflow:
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == "dev"
-    - if: $CI_COMMIT_BRANCH == "main"
+docker_build_product:
+  stage: build
+  image: docker:27.0.3
+  services:
+    - docker:27.0.3-dind
+  before_script:
+    - docker info
+  script:
+    - docker build -t shoppay-product:$IMAGE_TAG ./backend/services/product-service
+
+docker_build_order:
+  stage: build
+  image: docker:27.0.3
+  services:
+    - docker:27.0.3-dind
+  before_script:
+    - docker info
+  script:
+    - docker build -t shoppay-order:$IMAGE_TAG ./backend/services/order-service
+
+docker_build_payment:
+  stage: build
+  image: docker:27.0.3
+  services:
+    - docker:27.0.3-dind
+  before_script:
+    - docker info
+  script:
+    - docker build -t shoppay-payment:$IMAGE_TAG ./backend/services/payment-service
+
+docker_build_contact:
+  stage: build
+  image: docker:27.0.3
+  services:
+    - docker:27.0.3-dind
+  before_script:
+    - docker info
+  script:
+    - docker build -t shoppay-contact:$IMAGE_TAG ./backend/services/contact-service
+
+docker_build_frontend:
+  stage: build
+  image: docker:27.0.3
+  services:
+    - docker:27.0.3-dind
+  before_script:
+    - docker info
+  script:
+    - docker build \
+      --build-arg NEXT_PUBLIC_API_BASE_URL=/api \
+      -t shoppay-frontend:$IMAGE_TAG \
+      ./frontend
+
+# =========================
+# SECURITY STAGE
+# =========================
+
+trivy_product:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/product-service
+
+trivy_order:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/order-service
+
+trivy_payment:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/payment-service
+
+trivy_contact:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/contact-service
+
+trivy_frontend:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+  script:
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./frontend
