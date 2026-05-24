@@ -71,16 +71,20 @@ backend_contact_build:
 
 helm_validate:
   stage: validate
-  image: alpine/helm:3.15.4
+  image: alpine:3.20
+
+  before_script:
+    - apk add --no-cache curl bash git
+    - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
   script:
     - helm version
     - helm lint charts/shoppay
     - helm template shoppay charts/shoppay > shoppay-rendered.yaml
+
   artifacts:
     paths:
       - shoppay-rendered.yaml
-    expire_in: 1 week
-
 # =========================
 # BUILD STAGE
 # =========================
