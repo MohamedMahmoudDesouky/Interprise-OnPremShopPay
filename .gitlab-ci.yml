@@ -18,10 +18,10 @@ default:
 frontend_lint:
   stage: validate
   image: node:22-alpine
-  before_script:
+
+  script:
     - cd frontend
     - npm ci
-  script:
     - npm run lint
 
 frontend_build:
@@ -74,7 +74,7 @@ helm_validate:
   image: alpine:3.20
 
   before_script:
-    - apk add --no-cache curl bash git
+    - apk add --no-cache curl bash git openssl
     - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
   script:
