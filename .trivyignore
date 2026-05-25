@@ -1,0 +1,5 @@
+# PostgreSQL needs writable filesystem
+KSV-0014
+
+# Kong ExternalName services used intentionally for cross-namespace routing
+KSV-0108
