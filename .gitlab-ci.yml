@@ -7,10 +7,24 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-
+  DOCKER_BUILDKIT: "1"
 default:
   interruptible: true
 
+
+workflow:  
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+    
+cache:
+  paths:
+    - frontend/node_modules/
+    - backend/services/product-service/node_modules/
+    - backend/services/order-service/node_modules/
+    - backend/services/payment-service/node_modules/
+    - backend/services/contact-service/node_modules/
 # =========================
 # VALIDATION STAGE
 # =========================
@@ -85,6 +99,17 @@ helm_validate:
   artifacts:
     paths:
       - shoppay-rendered.yaml
+  
+dockerfile_lint:
+  stage: validate
+  image: hadolint/hadolint:latest-debian
+
+  script:
+    - hadolint backend/services/product-service/Dockerfile
+    - hadolint backend/services/order-service/Dockerfile
+    - hadolint backend/services/payment-service/Dockerfile
+    - hadolint backend/services/contact-service/Dockerfile
+    - hadolint frontend/Dockerfile        
 # =========================
 # BUILD STAGE
 # =========================
@@ -96,6 +121,7 @@ docker_build_product:
     - docker:27.0.3-dind
   before_script:
     - docker info
+    - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
   script:
     - docker build -t shoppay-product:$IMAGE_TAG ./backend/services/product-service
 
@@ -147,21 +173,59 @@ docker_build_frontend:
 # SECURITY STAGE
 # =========================
 
+trivy_image_product:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 shoppay-product:$IMAGE_TAG
+
+
 trivy_product:
   stage: security
   image:
     name: aquasec/trivy:latest
     entrypoint: [""]
-  script:
-    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/product-service
 
+  script:
+    - trivy fs \
+      --severity HIGH,CRITICAL \
+      --exit-code 1 \
+      --format json \
+      --output trivy-product-report.json \
+      ./backend/services/product-service
+
+  artifacts:
+    when: always
+    paths:
+      - trivy-product-report.json
 trivy_order:
   stage: security
   image:
     name: aquasec/trivy:latest
     entrypoint: [""]
   script:
-    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/order-service
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 --format json --output trivy-order-report.json ./backend/services/order-service
+  artifacts:
+    when: always
+    paths:
+      - trivy-order-report.json
+
+
+trivy_image_order:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+
+  script:
+    - trivy image \
+      --severity HIGH,CRITICAL \
+      --exit-code 1 \
+      shoppay-order:$IMAGE_TAG
+
 
 trivy_payment:
   stage: security
@@ -169,7 +233,25 @@ trivy_payment:
     name: aquasec/trivy:latest
     entrypoint: [""]
   script:
-    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/payment-service
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 --format json --output trivy-payment-report.json ./backend/services/payment-service
+  artifacts:
+    when: always
+    paths:
+      - trivy-payment-report.json
+
+
+trivy_image_payment:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+
+  script:
+    - trivy image \
+      --severity HIGH,CRITICAL \
+      --exit-code 1 \
+      shoppay-payment:$IMAGE_TAG
+
 
 trivy_contact:
   stage: security
@@ -177,7 +259,26 @@ trivy_contact:
     name: aquasec/trivy:latest
     entrypoint: [""]
   script:
-    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./backend/services/contact-service
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 --format json --output trivy-contact-report.json ./backend/services/contact-service
+  artifacts:
+    when: always
+    paths:
+      - trivy-contact-report.json
+
+
+trivy_image_contact:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+
+  script:
+    - trivy image \
+      --severity HIGH,CRITICAL \
+      --exit-code 1 \
+      shoppay-contact:$IMAGE_TAG
+
+
 
 trivy_frontend:
   stage: security
@@ -185,4 +286,39 @@ trivy_frontend:
     name: aquasec/trivy:latest
     entrypoint: [""]
   script:
-    - trivy fs --severity HIGH,CRITICAL --exit-code 1 ./frontend
+    - trivy fs --severity HIGH,CRITICAL --exit-code 1 --format json --output trivy-frontend-report.json ./frontend
+  artifacts:
+    when: always
+    paths:
+      - trivy-frontend-report.json
+trivy_secrets:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+
+  script:
+    - trivy fs --scanners secret --exit-code 1 .
+
+trivy_image_frontend:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+
+  script:
+    - trivy image \
+      --severity HIGH,CRITICAL \
+      --exit-code 1 \
+      shoppay-frontend:$IMAGE_TAG
+
+
+
+trivy_k8s_config:
+  stage: security
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
+
+  script:
+    - trivy config --severity HIGH,CRITICAL --exit-code 1 charts/shoppay
