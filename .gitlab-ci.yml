@@ -137,11 +137,12 @@ docker_build_frontend:
   before_script:
     - docker info
   script:
-    - docker build \
-      --build-arg NEXT_PUBLIC_API_BASE_URL=/api \
-      -t shoppay-frontend:$IMAGE_TAG \
-      ./frontend
-
+   - docker info
+   - |
+     docker build \
+       --build-arg NEXT_PUBLIC_API_BASE_URL=/api \
+       -t shoppay-frontend:$IMAGE_TAG \
+       ./frontend
 # =========================
 # SECURITY STAGE
 # =========================
