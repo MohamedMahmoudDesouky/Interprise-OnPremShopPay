@@ -8,6 +8,7 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
   DOCKER_BUILDKIT: "1"
+  DOCKER_IMAGE_DIR: "build-artifacts"
 
 default:
   interruptible: true
@@ -18,7 +19,11 @@ workflow:
     - if: $CI_COMMIT_BRANCH == "main"
 
 # =========================
+<<<<<<< HEAD
 # CACHE (OPTIMIZED)
+=======
+# SMART CACHING (IMPROVED)
+>>>>>>> c3d74dd (Selection Option in CI)
 # =========================
 
 cache:
@@ -31,7 +36,7 @@ cache:
     - backend/services/contact-service/node_modules/
 
 # =========================
-# VALIDATION
+# VALIDATION STAGE
 # =========================
 
 frontend_lint:
@@ -56,9 +61,16 @@ frontend_build:
     - npm ci
     - npm run build
 
-backend_product_build:
-  stage: validate
+# =========================
+# BACKEND VALIDATION
+# =========================
+
+.backend_template: &backend_template
   image: node:22-alpine
+  stage: validate
+
+backend_product_build:
+  <<: *backend_template
   rules:
     - changes:
         - backend/services/product-service/**/*
@@ -68,8 +80,7 @@ backend_product_build:
     - node --check src/index.js
 
 backend_order_build:
-  stage: validate
-  image: node:22-alpine
+  <<: *backend_template
   rules:
     - changes:
         - backend/services/order-service/**/*
@@ -79,8 +90,7 @@ backend_order_build:
     - node --check src/index.js
 
 backend_payment_build:
-  stage: validate
-  image: node:22-alpine
+  <<: *backend_template
   rules:
     - changes:
         - backend/services/payment-service/**/*
@@ -90,8 +100,7 @@ backend_payment_build:
     - node --check src/index.js
 
 backend_contact_build:
-  stage: validate
-  image: node:22-alpine
+  <<: *backend_template
   rules:
     - changes:
         - backend/services/contact-service/**/*
@@ -99,6 +108,10 @@ backend_contact_build:
     - cd backend/services/contact-service
     - npm ci --omit=dev
     - node --check src/index.js
+
+# =========================
+# HELM VALIDATION
+# =========================
 
 helm_validate:
   stage: validate
@@ -116,6 +129,10 @@ helm_validate:
     paths:
       - rendered.yaml
 
+# =========================
+# DOCKERFILE LINT
+# =========================
+
 dockerfile_lint:
   stage: validate
   image: hadolint/hadolint:latest-debian
@@ -130,7 +147,11 @@ dockerfile_lint:
     - hadolint backend/services/contact-service/Dockerfile
 
 # =========================
+<<<<<<< HEAD
 # BUILD STAGE
+=======
+# BUILD STAGE (NOW WITH ARTIFACTS)
+>>>>>>> c3d74dd (Selection Option in CI)
 # =========================
 
 .build_template:
@@ -141,6 +162,7 @@ dockerfile_lint:
   before_script:
     - docker info
     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+    - mkdir -p $DOCKER_IMAGE_DIR
 
 docker_build_product:
   extends: .build_template
@@ -148,9 +170,13 @@ docker_build_product:
     - changes:
         - backend/services/product-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-product:latest ./backend/services/product-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG ./backend/services/product-service
     - docker push $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG
-    - docker push $DOCKERHUB_USERNAME/shoppay-product:latest
+    - echo "$DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG" > $DOCKER_IMAGE_DIR/product.txt
+  artifacts:
+    paths:
+      - build-artifacts/product.txt
+    expire_in: 1 hour
 
 docker_build_order:
   extends: .build_template
@@ -158,9 +184,13 @@ docker_build_order:
     - changes:
         - backend/services/order-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-order:latest ./backend/services/order-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG ./backend/services/order-service
     - docker push $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG
-    - docker push $DOCKERHUB_USERNAME/shoppay-order:latest
+    - echo "$DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG" > $DOCKER_IMAGE_DIR/order.txt
+  artifacts:
+    paths:
+      - build-artifacts/order.txt
+    expire_in: 1 hour
 
 docker_build_payment:
   extends: .build_template
@@ -168,9 +198,13 @@ docker_build_payment:
     - changes:
         - backend/services/payment-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-payment:latest ./backend/services/payment-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG ./backend/services/payment-service
     - docker push $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG
-    - docker push $DOCKERHUB_USERNAME/shoppay-payment:latest
+    - echo "$DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG" > $DOCKER_IMAGE_DIR/payment.txt
+  artifacts:
+    paths:
+      - build-artifacts/payment.txt
+    expire_in: 1 hour
 
 docker_build_contact:
   extends: .build_template
@@ -178,9 +212,13 @@ docker_build_contact:
     - changes:
         - backend/services/contact-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-contact:latest ./backend/services/contact-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG ./backend/services/contact-service
     - docker push $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG
-    - docker push $DOCKERHUB_USERNAME/shoppay-contact:latest
+    - echo "$DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG" > $DOCKER_IMAGE_DIR/contact.txt
+  artifacts:
+    paths:
+      - build-artifacts/contact.txt
+    expire_in: 1 hour
 
 docker_build_frontend:
   extends: .build_template
@@ -189,14 +227,20 @@ docker_build_frontend:
         - frontend/**/*
   script:
     - docker build --build-arg NEXT_PUBLIC_API_BASE_URL=/api \
-      -t $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG \
-      -t $DOCKERHUB_USERNAME/shoppay-frontend:latest \
-      ./frontend
+      -t $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG ./frontend
     - docker push $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG
-    - docker push $DOCKERHUB_USERNAME/shoppay-frontend:latest
+    - echo "$DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG" > $DOCKER_IMAGE_DIR/frontend.txt
+  artifacts:
+    paths:
+      - build-artifacts/frontend.txt
+    expire_in: 1 hour
 
 # =========================
+<<<<<<< HEAD
 # SECURITY (RULES MIRROR BUILD)
+=======
+# SECURITY STAGE (NOW READS ARTIFACTS)
+>>>>>>> c3d74dd (Selection Option in CI)
 # =========================
 
 .trivy_template:
@@ -205,11 +249,19 @@ docker_build_frontend:
     name: aquasec/trivy:latest
     entrypoint: [""]
 
+<<<<<<< HEAD
+=======
+# Secrets scan (global)
+>>>>>>> c3d74dd (Selection Option in CI)
 trivy_secrets:
   extends: .trivy_template
   script:
     - trivy fs --scanners secret --exit-code 1 .
 
+<<<<<<< HEAD
+=======
+# K8s scan selective
+>>>>>>> c3d74dd (Selection Option in CI)
 trivy_k8s_config:
   extends: .trivy_template
   rules:
@@ -219,46 +271,82 @@ trivy_k8s_config:
     - trivy config --severity HIGH,CRITICAL --exit-code 1 charts/shoppay
 
 # =========================
+<<<<<<< HEAD
 # IMAGE SCANS (NO ARTIFACTS, NO NEEDS)
 # RULES MIRROR BUILD
+=======
+# IMAGE SCANS (ARTIFACT-BASED)
+>>>>>>> c3d74dd (Selection Option in CI)
 # =========================
 
 trivy_product_image:
   extends: .trivy_template
+<<<<<<< HEAD
   rules:
     - changes:
         - backend/services/product-service/**/*
+=======
+  dependencies:
+    - docker_build_product
+>>>>>>> c3d74dd (Selection Option in CI)
   script:
-    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG
+    - IMAGE=$(cat build-artifacts/product.txt)
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $IMAGE
 
 trivy_order_image:
   extends: .trivy_template
+<<<<<<< HEAD
   rules:
     - changes:
         - backend/services/order-service/**/*
+=======
+  dependencies:
+    - docker_build_order
+>>>>>>> c3d74dd (Selection Option in CI)
   script:
-    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG
+    - IMAGE=$(cat build-artifacts/order.txt)
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $IMAGE
 
 trivy_payment_image:
   extends: .trivy_template
+<<<<<<< HEAD
   rules:
     - changes:
         - backend/services/payment-service/**/*
+=======
+  dependencies:
+    - docker_build_payment
+>>>>>>> c3d74dd (Selection Option in CI)
   script:
-    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG
+    - IMAGE=$(cat build-artifacts/payment.txt)
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $IMAGE
 
 trivy_contact_image:
   extends: .trivy_template
+<<<<<<< HEAD
   rules:
     - changes:
         - backend/services/contact-service/**/*
+=======
+  dependencies:
+    - docker_build_contact
+>>>>>>> c3d74dd (Selection Option in CI)
   script:
-    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG
+    - IMAGE=$(cat build-artifacts/contact.txt)
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $IMAGE
 
 trivy_frontend_image:
   extends: .trivy_template
+<<<<<<< HEAD
   rules:
     - changes:
         - frontend/**/*
   script:
     - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG
+=======
+  dependencies:
+    - docker_build_frontend
+  script:
+    - IMAGE=$(cat build-artifacts/frontend.txt)
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $IMAGE
+>>>>>>> c3d74dd (Selection Option in CI)
