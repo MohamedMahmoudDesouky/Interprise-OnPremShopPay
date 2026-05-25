@@ -245,13 +245,11 @@ trivy_secrets:
 
 
 trivy_k8s_config:
-  stage: security
-  image:
-    name: aquasec/trivy:latest
-    entrypoint: [""]
+  extends: .trivy_template
 
   script:
-    - trivy config \
+    - |
+      trivy config \
       --severity HIGH,CRITICAL \
       --exit-code 1 \
       --ignorefile .trivyignore \
