@@ -26,12 +26,15 @@ cache:
     - backend/services/contact-service/node_modules/
 
 # =========================
-# VALIDATION STAGE
+# VALIDATION
 # =========================
 
 frontend_lint:
   stage: validate
   image: node:22-alpine
+  rules:
+    - changes:
+        - frontend/**/*
   script:
     - cd frontend
     - npm ci
@@ -40,6 +43,9 @@ frontend_lint:
 frontend_build:
   stage: validate
   image: node:22-alpine
+  rules:
+    - changes:
+        - frontend/**/*
   before_script:
     - cd frontend
     - npm ci
@@ -49,6 +55,9 @@ frontend_build:
 backend_product_build:
   stage: validate
   image: node:22-alpine
+  rules:
+    - changes:
+        - backend/services/product-service/**/*
   before_script:
     - cd backend/services/product-service
     - npm ci --omit=dev
@@ -58,6 +67,9 @@ backend_product_build:
 backend_order_build:
   stage: validate
   image: node:22-alpine
+  rules:
+    - changes:
+        - backend/services/order-service/**/*
   before_script:
     - cd backend/services/order-service
     - npm ci --omit=dev
@@ -67,6 +79,9 @@ backend_order_build:
 backend_payment_build:
   stage: validate
   image: node:22-alpine
+  rules:
+    - changes:
+        - backend/services/payment-service/**/*
   before_script:
     - cd backend/services/payment-service
     - npm ci --omit=dev
@@ -76,6 +91,9 @@ backend_payment_build:
 backend_contact_build:
   stage: validate
   image: node:22-alpine
+  rules:
+    - changes:
+        - backend/services/contact-service/**/*
   before_script:
     - cd backend/services/contact-service
     - npm ci --omit=dev
@@ -85,83 +103,100 @@ backend_contact_build:
 helm_validate:
   stage: validate
   image: alpine:3.20
-
+  rules:
+    - changes:
+        - charts/**/*
   before_script:
     - apk add --no-cache curl bash git openssl
     - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
   script:
-    - helm version
     - helm lint charts/shoppay
-    - helm template shoppay charts/shoppay > shoppay-rendered.yaml
-
+    - helm template shoppay charts/shoppay > rendered.yaml
   artifacts:
     paths:
-      - shoppay-rendered.yaml
+      - rendered.yaml
 
 dockerfile_lint:
   stage: validate
   image: hadolint/hadolint:latest-debian
-
+  rules:
+    - changes:
+        - "**/Dockerfile"
   script:
+    - hadolint frontend/Dockerfile
     - hadolint backend/services/product-service/Dockerfile
     - hadolint backend/services/order-service/Dockerfile
     - hadolint backend/services/payment-service/Dockerfile
     - hadolint backend/services/contact-service/Dockerfile
-    - hadolint frontend/Dockerfile
 
 # =========================
-# BUILD & PUSH STAGE
+# BUILD
 # =========================
 
 .build_template:
   stage: build
   image: docker:27.0.3
-
   services:
     - docker:27.0.3-dind
-
   before_script:
     - docker info
     - echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
 docker_build_product:
   extends: .build_template
+  rules:
+    - changes:
+        - backend/services/product-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG ./backend/services/product-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-product:latest ./backend/services/product-service
     - docker push $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG
+    - docker push $DOCKERHUB_USERNAME/shoppay-product:latest
 
 docker_build_order:
   extends: .build_template
+  rules:
+    - changes:
+        - backend/services/order-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG ./backend/services/order-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-order:latest ./backend/services/order-service
     - docker push $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG
+    - docker push $DOCKERHUB_USERNAME/shoppay-order:latest
 
 docker_build_payment:
   extends: .build_template
+  rules:
+    - changes:
+        - backend/services/payment-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG ./backend/services/payment-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-payment:latest ./backend/services/payment-service
     - docker push $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG
+    - docker push $DOCKERHUB_USERNAME/shoppay-payment:latest
 
 docker_build_contact:
   extends: .build_template
+  rules:
+    - changes:
+        - backend/services/contact-service/**/*
   script:
-    - docker build -t $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG ./backend/services/contact-service
+    - docker build -t $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG -t $DOCKERHUB_USERNAME/shoppay-contact:latest ./backend/services/contact-service
     - docker push $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG
+    - docker push $DOCKERHUB_USERNAME/shoppay-contact:latest
 
 docker_build_frontend:
   extends: .build_template
+  rules:
+    - changes:
+        - frontend/**/*
   script:
-    - |
-      docker build \
-      --build-arg NEXT_PUBLIC_API_BASE_URL=/api \
+    - docker build --build-arg NEXT_PUBLIC_API_BASE_URL=/api \
       -t $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG \
+      -t $DOCKERHUB_USERNAME/shoppay-frontend:latest \
       ./frontend
-
     - docker push $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG
+    - docker push $DOCKERHUB_USERNAME/shoppay-frontend:latest
 
 # =========================
-# SECURITY STAGE
+# SECURITY
 # =========================
 
 .trivy_template:
@@ -170,87 +205,51 @@ docker_build_frontend:
     name: aquasec/trivy:latest
     entrypoint: [""]
 
-trivy_product_fs:
-  extends: .trivy_template
-
-  script:
-    - |
-      trivy fs \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      --format json \
-      --output trivy-product-report.json \
-      ./backend/services/product-service
-
-  artifacts:
-    when: always
-    paths:
-      - trivy-product-report.json
-
-trivy_product_image:
-  extends: .trivy_template
-
-  script:
-    - |
-      trivy image \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG
-
-trivy_order_image:
-  extends: .trivy_template
-
-  script:
-    - |
-      trivy image \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG
-
-trivy_payment_image:
-  extends: .trivy_template
-
-  script:
-    - |
-      trivy image \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG
-
-trivy_contact_image:
-  extends: .trivy_template
-
-  script:
-    - |
-      trivy image \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG
-
-trivy_frontend_image:
-  extends: .trivy_template
-
-  script:
-    - |
-      trivy image \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG
-
+# FS + Secrets (global important)
 trivy_secrets:
   extends: .trivy_template
-
   script:
     - trivy fs --scanners secret --exit-code 1 .
 
-
+# K8s config only when charts change
 trivy_k8s_config:
   extends: .trivy_template
-
+  rules:
+    - changes:
+        - charts/**/*
   script:
-    - |
-      trivy config \
-      --severity HIGH,CRITICAL \
-      --exit-code 1 \
-      --ignorefile .trivyignore \
-      charts/shoppay
+    - trivy config --severity HIGH,CRITICAL --exit-code 1 charts/shoppay
+
+# =========================
+# IMAGE SCANS (needs FIXED)
+# =========================
+
+trivy_product_image:
+  extends: .trivy_template
+  needs: ["docker_build_product"]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG
+
+trivy_order_image:
+  extends: .trivy_template
+  needs: ["docker_build_order"]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG
+
+trivy_payment_image:
+  extends: .trivy_template
+  needs: ["docker_build_payment"]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG
+
+trivy_contact_image:
+  extends: .trivy_template
+  needs: ["docker_build_contact"]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG
+
+trivy_frontend_image:
+  extends: .trivy_template
+  needs: ["docker_build_frontend"]
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG
