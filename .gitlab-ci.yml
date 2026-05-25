@@ -130,7 +130,7 @@ dockerfile_lint:
     - hadolint backend/services/contact-service/Dockerfile
 
 # =========================
-# BUILD
+# BUILD STAGE
 # =========================
 
 .build_template:
@@ -196,7 +196,7 @@ docker_build_frontend:
     - docker push $DOCKERHUB_USERNAME/shoppay-frontend:latest
 
 # =========================
-# SECURITY
+# SECURITY STAGE
 # =========================
 
 .trivy_template:
@@ -205,13 +205,11 @@ docker_build_frontend:
     name: aquasec/trivy:latest
     entrypoint: [""]
 
-# FS + Secrets (global important)
 trivy_secrets:
   extends: .trivy_template
   script:
     - trivy fs --scanners secret --exit-code 1 .
 
-# K8s config only when charts change
 trivy_k8s_config:
   extends: .trivy_template
   rules:
@@ -221,35 +219,45 @@ trivy_k8s_config:
     - trivy config --severity HIGH,CRITICAL --exit-code 1 charts/shoppay
 
 # =========================
-# IMAGE SCANS (needs FIXED)
+# IMAGE SCANS (FIXED WITH OPTIONAL NEEDS)
 # =========================
 
 trivy_product_image:
   extends: .trivy_template
-  needs: ["docker_build_product"]
+  needs:
+    - job: docker_build_product
+      optional: true
   script:
     - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-product:$IMAGE_TAG
 
 trivy_order_image:
   extends: .trivy_template
-  needs: ["docker_build_order"]
+  needs:
+    - job: docker_build_order
+      optional: true
   script:
     - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-order:$IMAGE_TAG
 
 trivy_payment_image:
   extends: .trivy_template
-  needs: ["docker_build_payment"]
+  needs:
+    - job: docker_build_payment
+      optional: true
   script:
     - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-payment:$IMAGE_TAG
 
 trivy_contact_image:
   extends: .trivy_template
-  needs: ["docker_build_contact"]
+  needs:
+    - job: docker_build_contact
+      optional: true
   script:
     - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-contact:$IMAGE_TAG
 
 trivy_frontend_image:
   extends: .trivy_template
-  needs: ["docker_build_frontend"]
+  needs:
+    - job: docker_build_frontend
+      optional: true
   script:
     - trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKERHUB_USERNAME/shoppay-frontend:$IMAGE_TAG
