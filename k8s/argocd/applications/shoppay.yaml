@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: shoppay
+  namespace: argocd
+
+spec:
+  project: default
+
+  source:
+    repoURL: https://gitlab.com/selcon-group/interpriseonpremshoppay.git
+    targetRevision: dev
+    path: charts/shoppay
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shoppay
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
