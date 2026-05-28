@@ -358,7 +358,7 @@ frontend:
   enabled: true
   name: frontend
   namespace: shoppay-frontend
-  replicaCount: 5
+  replicaCount: 2
 
   image:
     repository: selconyt/shoppay-frontend
