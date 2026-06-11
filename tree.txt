@@ -3467,6 +3467,8 @@
 │       │   ├── contact-service.yaml
 │       │   ├── frontend.yaml
 │       │   ├── gateway-upstream-services.yaml
+│       │   ├── monitoring
+│       │   │   └── grafana-ingress.yaml
 │       │   ├── namespaces.yaml
 │       │   ├── networkpolicy-contact.yaml
 │       │   ├── networkpolicy-frontend.yaml
@@ -3484,6 +3486,7 @@
 │   └── Screenshot From 2026-05-11 23-29-30.png
 ├── frontend
 │   ├── Dockerfile
+│   ├── eslint.config.mjs
 │   ├── favicon.png
 │   ├── next.config.js
 │   ├── next.config.mjs
@@ -3607,6 +3610,21 @@
 │   │   │       ├── prepare-tests
 │   │   │       ├── publish-built-version
 │   │   │       └── travis-gh-pages
+│   │   ├── ansi-styles
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
+│   │   ├── argparse
+│   │   │   ├── argparse.js
+│   │   │   ├── CHANGELOG.md
+│   │   │   ├── lib
+│   │   │   │   ├── sub.js
+│   │   │   │   └── textwrap.js
+│   │   │   ├── LICENSE
+│   │   │   ├── package.json
+│   │   │   └── README.md
 │   │   ├── aria-query
 │   │   │   ├── lib
 │   │   │   │   ├── ariaPropsMap.js
@@ -5056,6 +5074,12 @@
 │   │   │   ├── test
 │   │   │   │   └── index.js
 │   │   │   └── tsconfig.json
+│   │   ├── callsites
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── caniuse-lite
 │   │   │   ├── data
 │   │   │   │   ├── agents.js
@@ -5902,10 +5926,32 @@
 │   │   │   ├── LICENSE
 │   │   │   ├── package.json
 │   │   │   └── README.md
+│   │   ├── chalk
+│   │   │   ├── index.d.ts
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   ├── readme.md
+│   │   │   └── source
+│   │   │       ├── index.js
+│   │   │       ├── templates.js
+│   │   │       └── util.js
 │   │   ├── client-only
 │   │   │   ├── error.js
 │   │   │   ├── index.js
 │   │   │   └── package.json
+│   │   ├── color-convert
+│   │   │   ├── CHANGELOG.md
+│   │   │   ├── conversions.js
+│   │   │   ├── index.js
+│   │   │   ├── LICENSE
+│   │   │   ├── package.json
+│   │   │   ├── README.md
+│   │   │   └── route.js
+│   │   ├── color-name
+│   │   │   ├── index.js
+│   │   │   ├── LICENSE
+│   │   │   ├── package.json
+│   │   │   └── README.md
 │   │   ├── concat-map
 │   │   │   ├── example
 │   │   │   │   └── map.js
@@ -8846,6 +8892,22 @@
 │   │   │   │   │       ├── types.d.ts
 │   │   │   │   │       └── types.ts
 │   │   │   │   ├── LICENSE
+│   │   │   │   ├── node_modules
+│   │   │   │   │   ├── balanced-match
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── LICENSE.md
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   └── README.md
+│   │   │   │   │   ├── brace-expansion
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── LICENSE
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   └── README.md
+│   │   │   │   │   └── minimatch
+│   │   │   │   │       ├── LICENSE
+│   │   │   │   │       ├── minimatch.js
+│   │   │   │   │       ├── package.json
+│   │   │   │   │       └── README.md
 │   │   │   │   ├── package.json
 │   │   │   │   └── README.md
 │   │   │   ├── config-helpers
@@ -8871,6 +8933,78 @@
 │   │   │   │   ├── LICENSE
 │   │   │   │   ├── package.json
 │   │   │   │   └── README.md
+│   │   │   ├── eslintrc
+│   │   │   │   ├── conf
+│   │   │   │   │   ├── config-schema.js
+│   │   │   │   │   └── environments.js
+│   │   │   │   ├── dist
+│   │   │   │   │   ├── eslintrc.cjs
+│   │   │   │   │   ├── eslintrc.cjs.map
+│   │   │   │   │   ├── eslintrc.d.cts
+│   │   │   │   │   ├── eslintrc-universal.cjs
+│   │   │   │   │   └── eslintrc-universal.cjs.map
+│   │   │   │   ├── lib
+│   │   │   │   │   ├── cascading-config-array-factory.js
+│   │   │   │   │   ├── config-array
+│   │   │   │   │   │   ├── config-array.js
+│   │   │   │   │   │   ├── config-dependency.js
+│   │   │   │   │   │   ├── extracted-config.js
+│   │   │   │   │   │   ├── ignore-pattern.js
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   └── override-tester.js
+│   │   │   │   │   ├── config-array-factory.js
+│   │   │   │   │   ├── flat-compat.js
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   ├── index-universal.js
+│   │   │   │   │   ├── shared
+│   │   │   │   │   │   ├── ajv.js
+│   │   │   │   │   │   ├── config-ops.js
+│   │   │   │   │   │   ├── config-validator.js
+│   │   │   │   │   │   ├── deep-merge-arrays.js
+│   │   │   │   │   │   ├── deprecation-warnings.js
+│   │   │   │   │   │   ├── naming.js
+│   │   │   │   │   │   ├── relative-module-resolver.js
+│   │   │   │   │   │   └── types.js
+│   │   │   │   │   └── types
+│   │   │   │   │       └── index.d.ts
+│   │   │   │   ├── LICENSE
+│   │   │   │   ├── node_modules
+│   │   │   │   │   ├── balanced-match
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── LICENSE.md
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   └── README.md
+│   │   │   │   │   ├── brace-expansion
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── LICENSE
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   └── README.md
+│   │   │   │   │   ├── globals
+│   │   │   │   │   │   ├── globals.json
+│   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   ├── license
+│   │   │   │   │   │   ├── package.json
+│   │   │   │   │   │   └── readme.md
+│   │   │   │   │   └── minimatch
+│   │   │   │   │       ├── LICENSE
+│   │   │   │   │       ├── minimatch.js
+│   │   │   │   │       ├── package.json
+│   │   │   │   │       └── README.md
+│   │   │   │   ├── package.json
+│   │   │   │   ├── README.md
+│   │   │   │   └── universal.js
+│   │   │   ├── js
+│   │   │   │   ├── LICENSE
+│   │   │   │   ├── package.json
+│   │   │   │   ├── README.md
+│   │   │   │   ├── src
+│   │   │   │   │   ├── configs
+│   │   │   │   │   │   ├── eslint-all.js
+│   │   │   │   │   │   └── eslint-recommended.js
+│   │   │   │   │   └── index.js
+│   │   │   │   └── types
+│   │   │   │       └── index.d.ts
 │   │   │   ├── object-schema
 │   │   │   │   ├── dist
 │   │   │   │   │   ├── cjs
@@ -8903,6 +9037,7 @@
 │   │   │   ├── bin
 │   │   │   │   └── eslint.js
 │   │   │   ├── conf
+│   │   │   │   ├── default-cli-options.js
 │   │   │   │   ├── ecma-version.js
 │   │   │   │   ├── globals.js
 │   │   │   │   ├── replacements.json
@@ -8910,6 +9045,8 @@
 │   │   │   ├── lib
 │   │   │   │   ├── api.js
 │   │   │   │   ├── cli-engine
+│   │   │   │   │   ├── cli-engine.js
+│   │   │   │   │   ├── file-enumerator.js
 │   │   │   │   │   ├── formatters
 │   │   │   │   │   │   ├── formatters-meta.json
 │   │   │   │   │   │   ├── html.js
@@ -8917,7 +9054,9 @@
 │   │   │   │   │   │   ├── json-with-metadata.js
 │   │   │   │   │   │   └── stylish.js
 │   │   │   │   │   ├── hash.js
-│   │   │   │   │   └── lint-result-cache.js
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   ├── lint-result-cache.js
+│   │   │   │   │   └── load-rules.js
 │   │   │   │   ├── cli.js
 │   │   │   │   ├── config
 │   │   │   │   │   ├── config.js
@@ -8930,6 +9069,7 @@
 │   │   │   │   │   ├── eslint-helpers.js
 │   │   │   │   │   ├── eslint.js
 │   │   │   │   │   ├── index.js
+│   │   │   │   │   ├── legacy-eslint.js
 │   │   │   │   │   └── worker.js
 │   │   │   │   ├── languages
 │   │   │   │   │   └── js
@@ -8969,6 +9109,7 @@
 │   │   │   │   │   ├── interpolate.js
 │   │   │   │   │   ├── linter.js
 │   │   │   │   │   ├── rule-fixer.js
+│   │   │   │   │   ├── rules.js
 │   │   │   │   │   ├── source-code-fixer.js
 │   │   │   │   │   ├── source-code-traverser.js
 │   │   │   │   │   ├── source-code-visitor.js
@@ -9298,7 +9439,6 @@
 │   │   │   │   │   ├── directives.js
 │   │   │   │   │   ├── flags.js
 │   │   │   │   │   ├── logging.js
-│   │   │   │   │   ├── message-counts.js
 │   │   │   │   │   ├── naming.js
 │   │   │   │   │   ├── option-utils.js
 │   │   │   │   │   ├── relative-module-resolver.js
@@ -9320,6 +9460,7 @@
 │   │   │   │   └── unsupported-api.js
 │   │   │   ├── LICENSE
 │   │   │   ├── messages
+│   │   │   │   ├── all-files-ignored.js
 │   │   │   │   ├── all-matched-files-ignored.js
 │   │   │   │   ├── config-file-missing.js
 │   │   │   │   ├── config-plugin-missing.js
@@ -9335,9 +9476,37 @@
 │   │   │   │   ├── plugin-conflict.js
 │   │   │   │   ├── plugin-invalid.js
 │   │   │   │   ├── plugin-missing.js
-│   │   │   │   ├── rule-unsupported-language.js
+│   │   │   │   ├── print-config-with-directory-path.js
 │   │   │   │   ├── shared.js
 │   │   │   │   └── whitespace-found.js
+│   │   │   ├── node_modules
+│   │   │   │   ├── balanced-match
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   ├── LICENSE.md
+│   │   │   │   │   ├── package.json
+│   │   │   │   │   └── README.md
+│   │   │   │   ├── brace-expansion
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   ├── LICENSE
+│   │   │   │   │   ├── package.json
+│   │   │   │   │   └── README.md
+│   │   │   │   ├── eslint-visitor-keys
+│   │   │   │   │   ├── dist
+│   │   │   │   │   │   ├── eslint-visitor-keys.cjs
+│   │   │   │   │   │   ├── eslint-visitor-keys.d.cts
+│   │   │   │   │   │   ├── index.d.ts
+│   │   │   │   │   │   └── visitor-keys.d.ts
+│   │   │   │   │   ├── lib
+│   │   │   │   │   │   ├── index.js
+│   │   │   │   │   │   └── visitor-keys.js
+│   │   │   │   │   ├── LICENSE
+│   │   │   │   │   ├── package.json
+│   │   │   │   │   └── README.md
+│   │   │   │   └── minimatch
+│   │   │   │       ├── LICENSE
+│   │   │   │       ├── minimatch.js
+│   │   │   │       ├── package.json
+│   │   │   │       └── README.md
 │   │   │   ├── package.json
 │   │   │   └── README.md
 │   │   ├── @eslint-community
@@ -10297,15 +10466,14 @@
 │   │   │   ├── lib
 │   │   │   │   ├── assert.js
 │   │   │   │   ├── definition.js
-│   │   │   │   ├── index.d.cts
-│   │   │   │   ├── index.d.ts
 │   │   │   │   ├── index.js
 │   │   │   │   ├── pattern-visitor.js
 │   │   │   │   ├── reference.js
 │   │   │   │   ├── referencer.js
 │   │   │   │   ├── scope.js
 │   │   │   │   ├── scope-manager.js
-│   │   │   │   └── variable.js
+│   │   │   │   ├── variable.js
+│   │   │   │   └── version.js
 │   │   │   ├── LICENSE
 │   │   │   ├── package.json
 │   │   │   └── README.md
@@ -10339,18 +10507,28 @@
 │   │   │   └── tsconfig.json
 │   │   ├── espree
 │   │   │   ├── dist
-│   │   │   │   ├── espree.cjs
-│   │   │   │   ├── espree.d.cts
-│   │   │   │   ├── espree.d.cts.map
-│   │   │   │   ├── espree.d.ts
-│   │   │   │   └── espree.d.ts.map
+│   │   │   │   └── espree.cjs
 │   │   │   ├── espree.js
 │   │   │   ├── lib
 │   │   │   │   ├── espree.js
+│   │   │   │   ├── features.js
 │   │   │   │   ├── options.js
 │   │   │   │   ├── token-translator.js
-│   │   │   │   └── types.js
+│   │   │   │   └── version.js
 │   │   │   ├── LICENSE
+│   │   │   ├── node_modules
+│   │   │   │   └── eslint-visitor-keys
+│   │   │   │       ├── dist
+│   │   │   │       │   ├── eslint-visitor-keys.cjs
+│   │   │   │       │   ├── eslint-visitor-keys.d.cts
+│   │   │   │       │   ├── index.d.ts
+│   │   │   │       │   └── visitor-keys.d.ts
+│   │   │   │       ├── lib
+│   │   │   │       │   ├── index.js
+│   │   │   │       │   └── visitor-keys.js
+│   │   │   │       ├── LICENSE
+│   │   │   │       ├── package.json
+│   │   │   │       └── README.md
 │   │   │   ├── package.json
 │   │   │   └── README.md
 │   │   ├── esquery
@@ -10774,6 +10952,12 @@
 │   │   │   ├── test
 │   │   │   │   └── index.js
 │   │   │   └── tsconfig.json
+│   │   ├── has-flag
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── hasown
 │   │   │   ├── CHANGELOG.md
 │   │   │   ├── eslint.config.mjs
@@ -10988,6 +11172,16 @@
 │   │   │   │   ├── LICENSE.md
 │   │   │   │   ├── package.json
 │   │   │   │   └── README.md
+│   │   │   ├── sharp-libvips-linuxmusl-x64
+│   │   │   │   ├── lib
+│   │   │   │   │   ├── glib-2.0
+│   │   │   │   │   │   └── include
+│   │   │   │   │   │       └── glibconfig.h
+│   │   │   │   │   ├── index.js
+│   │   │   │   │   └── libvips-cpp.so.8.17.3
+│   │   │   │   ├── package.json
+│   │   │   │   ├── README.md
+│   │   │   │   └── versions.json
 │   │   │   ├── sharp-libvips-linux-x64
 │   │   │   │   ├── lib
 │   │   │   │   │   ├── glib-2.0
@@ -10998,12 +11192,24 @@
 │   │   │   │   ├── package.json
 │   │   │   │   ├── README.md
 │   │   │   │   └── versions.json
+│   │   │   ├── sharp-linuxmusl-x64
+│   │   │   │   ├── lib
+│   │   │   │   │   └── sharp-linuxmusl-x64.node
+│   │   │   │   ├── LICENSE
+│   │   │   │   ├── package.json
+│   │   │   │   └── README.md
 │   │   │   └── sharp-linux-x64
 │   │   │       ├── lib
 │   │   │       │   └── sharp-linux-x64.node
 │   │   │       ├── LICENSE
 │   │   │       ├── package.json
 │   │   │       └── README.md
+│   │   ├── import-fresh
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── imurmurhash
 │   │   │   ├── imurmurhash.js
 │   │   │   ├── imurmurhash.min.js
@@ -11697,6 +11903,44 @@
 │   │   │           ├── hasProp-test.js
 │   │   │           ├── index-test.js
 │   │   │           └── propName-test.js
+│   │   ├── js-yaml
+│   │   │   ├── bin
+│   │   │   │   └── js-yaml.js
+│   │   │   ├── dist
+│   │   │   │   ├── js-yaml.js
+│   │   │   │   ├── js-yaml.min.js
+│   │   │   │   └── js-yaml.mjs
+│   │   │   ├── index.js
+│   │   │   ├── lib
+│   │   │   │   ├── common.js
+│   │   │   │   ├── dumper.js
+│   │   │   │   ├── exception.js
+│   │   │   │   ├── loader.js
+│   │   │   │   ├── schema
+│   │   │   │   │   ├── core.js
+│   │   │   │   │   ├── default.js
+│   │   │   │   │   ├── failsafe.js
+│   │   │   │   │   └── json.js
+│   │   │   │   ├── schema.js
+│   │   │   │   ├── snippet.js
+│   │   │   │   ├── type
+│   │   │   │   │   ├── binary.js
+│   │   │   │   │   ├── bool.js
+│   │   │   │   │   ├── float.js
+│   │   │   │   │   ├── int.js
+│   │   │   │   │   ├── map.js
+│   │   │   │   │   ├── merge.js
+│   │   │   │   │   ├── null.js
+│   │   │   │   │   ├── omap.js
+│   │   │   │   │   ├── pairs.js
+│   │   │   │   │   ├── seq.js
+│   │   │   │   │   ├── set.js
+│   │   │   │   │   ├── str.js
+│   │   │   │   │   └── timestamp.js
+│   │   │   │   └── type.js
+│   │   │   ├── LICENSE
+│   │   │   ├── package.json
+│   │   │   └── README.md
 │   │   ├── keyv
 │   │   │   ├── package.json
 │   │   │   ├── README.md
@@ -11743,6 +11987,11 @@
 │   │   │   ├── license
 │   │   │   ├── package.json
 │   │   │   └── readme.md
+│   │   ├── lodash.merge
+│   │   │   ├── index.js
+│   │   │   ├── LICENSE
+│   │   │   ├── package.json
+│   │   │   └── README.md
 │   │   ├── loose-envify
 │   │   │   ├── cli.js
 │   │   │   ├── custom.js
@@ -15547,8 +15796,12 @@
 │   │   │   │   │       └── url.js
 │   │   │   │   ├── package.json
 │   │   │   │   └── README.md
-│   │   │   └── swc-linux-x64-gnu
-│   │   │       ├── next-swc.linux-x64-gnu.node
+│   │   │   ├── swc-linux-x64-gnu
+│   │   │   │   ├── next-swc.linux-x64-gnu.node
+│   │   │   │   ├── package.json
+│   │   │   │   └── README.md
+│   │   │   └── swc-linux-x64-musl
+│   │   │       ├── next-swc.linux-x64-musl.node
 │   │   │       ├── package.json
 │   │   │       └── README.md
 │   │   ├── next
@@ -24593,6 +24846,11 @@
 │   │   │   ├── test
 │   │   │   │   └── index.js
 │   │   │   └── tsconfig.json
+│   │   ├── parent-module
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── path-exists
 │   │   │   ├── index.d.ts
 │   │   │   ├── index.js
@@ -25038,6 +25296,11 @@
 │   │   │   │   ├── subdirs.js
 │   │   │   │   └── symlinks.js
 │   │   │   └── tsconfig.json
+│   │   ├── resolve-from
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── resolve-pkg-maps
 │   │   │   ├── dist
 │   │   │   │   ├── index.cjs
@@ -25439,6 +25702,12 @@
 │   │   │   ├── license
 │   │   │   ├── package.json
 │   │   │   └── readme.md
+│   │   ├── strip-json-comments
+│   │   │   ├── index.d.ts
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── styled-jsx
 │   │   │   ├── babel.js
 │   │   │   ├── babel-test.js
@@ -25465,6 +25734,12 @@
 │   │   │   ├── style.d.ts
 │   │   │   ├── style.js
 │   │   │   └── webpack.js
+│   │   ├── supports-color
+│   │   │   ├── browser.js
+│   │   │   ├── index.js
+│   │   │   ├── license
+│   │   │   ├── package.json
+│   │   │   └── readme.md
 │   │   ├── supports-preserve-symlinks-flag
 │   │   │   ├── browser.js
 │   │   │   ├── CHANGELOG.md
@@ -26197,11 +26472,6 @@
 │   │   │   │   └── index.js
 │   │   │   └── tsconfig.json
 │   │   ├── @types
-│   │   │   ├── esrecurse
-│   │   │   │   ├── index.d.ts
-│   │   │   │   ├── LICENSE
-│   │   │   │   ├── package.json
-│   │   │   │   └── README.md
 │   │   │   ├── estree
 │   │   │   │   ├── flow.d.ts
 │   │   │   │   ├── index.d.ts
@@ -27737,10 +28007,14 @@
 │   │   │   ├── webidl.d.ts
 │   │   │   └── websocket.d.ts
 │   │   ├── @unrs
-│   │   │   └── resolver-binding-linux-x64-gnu
+│   │   │   ├── resolver-binding-linux-x64-gnu
+│   │   │   │   ├── package.json
+│   │   │   │   ├── README.md
+│   │   │   │   └── resolver.linux-x64-gnu.node
+│   │   │   └── resolver-binding-linux-x64-musl
 │   │   │       ├── package.json
 │   │   │       ├── README.md
-│   │   │       └── resolver.linux-x64-gnu.node
+│   │   │       └── resolver.linux-x64-musl.node
 │   │   ├── unrs-resolver
 │   │   │   ├── browser.js
 │   │   │   ├── index.d.ts
@@ -28673,10 +28947,16 @@
 │   │       ├── cart.ts
 │   │       └── products.ts
 │   └── tsconfig.json
+├── helm
 ├── infra
 │   └── kong
 │       ├── kong-admin-internal-service.yaml
 │       └── values.yaml
+├── k8s
+│   └── argocd
+│       └── applications
+│           ├── product-service.yaml
+│           └── shoppay.yaml
 ├── Linting
 ├── package-lock.json
 ├── README.md
@@ -28730,4 +29010,4 @@
 │   └── verify-production.sh
 └── tree.txt
 
-2492 directories, 26239 files
+2556 directories, 26455 files
