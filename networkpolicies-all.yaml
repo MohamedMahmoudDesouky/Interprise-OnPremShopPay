@@ -1,0 +1,1573 @@
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/component":"application-controller","app.kubernetes.io/name":"argocd-application-controller","app.kubernetes.io/part-of":"argocd"},"name":"argocd-application-controller-network-policy","namespace":"argocd"},"spec":{"ingress":[{"from":[{"namespaceSelector":{}}],"ports":[{"port":8082}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-application-controller"}},"policyTypes":["Ingress"]}}
+    creationTimestamp: "2026-05-28T19:10:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: application-controller
+      app.kubernetes.io/name: argocd-application-controller
+      app.kubernetes.io/part-of: argocd
+    name: argocd-application-controller-network-policy
+    namespace: argocd
+    resourceVersion: "317094"
+    uid: fa1faf65-2b69-491b-add5-84d2f538a528
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector: {}
+      ports:
+      - port: 8082
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-application-controller
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/component":"applicationset-controller","app.kubernetes.io/name":"argocd-applicationset-controller","app.kubernetes.io/part-of":"argocd"},"name":"argocd-applicationset-controller-network-policy","namespace":"argocd"},"spec":{"ingress":[{"from":[{"namespaceSelector":{}}],"ports":[{"port":7000,"protocol":"TCP"},{"port":8080,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-applicationset-controller"}},"policyTypes":["Ingress"]}}
+    creationTimestamp: "2026-05-28T19:10:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: applicationset-controller
+      app.kubernetes.io/name: argocd-applicationset-controller
+      app.kubernetes.io/part-of: argocd
+    name: argocd-applicationset-controller-network-policy
+    namespace: argocd
+    resourceVersion: "316893"
+    uid: 1c10c72f-92d5-47eb-b78c-cb6ecadff310
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector: {}
+      ports:
+      - port: 7000
+        protocol: TCP
+      - port: 8080
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-applicationset-controller
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/component":"dex-server","app.kubernetes.io/name":"argocd-dex-server","app.kubernetes.io/part-of":"argocd"},"name":"argocd-dex-server-network-policy","namespace":"argocd"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-server"}}}],"ports":[{"port":5556,"protocol":"TCP"},{"port":5557,"protocol":"TCP"}]},{"from":[{"namespaceSelector":{}}],"ports":[{"port":5558,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-dex-server"}},"policyTypes":["Ingress"]}}
+    creationTimestamp: "2026-05-28T19:10:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: dex-server
+      app.kubernetes.io/name: argocd-dex-server
+      app.kubernetes.io/part-of: argocd
+    name: argocd-dex-server-network-policy
+    namespace: argocd
+    resourceVersion: "316897"
+    uid: 2b8bc47e-5cfc-45b6-b15f-0b9c09d2eda2
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-server
+      ports:
+      - port: 5556
+        protocol: TCP
+      - port: 5557
+        protocol: TCP
+    - from:
+      - namespaceSelector: {}
+      ports:
+      - port: 5558
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-dex-server
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/component":"notifications-controller","app.kubernetes.io/name":"argocd-notifications-controller","app.kubernetes.io/part-of":"argocd"},"name":"argocd-notifications-controller-network-policy","namespace":"argocd"},"spec":{"ingress":[{"from":[{"namespaceSelector":{}}],"ports":[{"port":9001,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-notifications-controller"}},"policyTypes":["Ingress"]}}
+    creationTimestamp: "2026-05-28T19:10:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: notifications-controller
+      app.kubernetes.io/name: argocd-notifications-controller
+      app.kubernetes.io/part-of: argocd
+    name: argocd-notifications-controller-network-policy
+    namespace: argocd
+    resourceVersion: "316901"
+    uid: bc4abe72-1498-446a-b7fe-bb7236970dfc
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector: {}
+      ports:
+      - port: 9001
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-notifications-controller
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/component":"redis","app.kubernetes.io/name":"argocd-redis","app.kubernetes.io/part-of":"argocd"},"name":"argocd-redis-network-policy","namespace":"argocd"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-server"}}},{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-repo-server"}}},{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-application-controller"}}}],"ports":[{"port":6379,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-redis"}},"policyTypes":["Ingress"]}}
+    creationTimestamp: "2026-05-28T19:10:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: redis
+      app.kubernetes.io/name: argocd-redis
+      app.kubernetes.io/part-of: argocd
+    name: argocd-redis-network-policy
+    namespace: argocd
+    resourceVersion: "316905"
+    uid: a3661bcb-1758-4d46-8d1d-2ddff394abaa
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-server
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-repo-server
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-application-controller
+      ports:
+      - port: 6379
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-redis
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/component":"repo-server","app.kubernetes.io/name":"argocd-repo-server","app.kubernetes.io/part-of":"argocd"},"name":"argocd-repo-server-network-policy","namespace":"argocd"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-server"}}},{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-application-controller"}}},{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-notifications-controller"}}},{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-applicationset-controller"}}}],"ports":[{"port":8081,"protocol":"TCP"}]},{"from":[{"namespaceSelector":{}}],"ports":[{"port":8084}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-repo-server"}},"policyTypes":["Ingress"]}}
+    creationTimestamp: "2026-05-28T19:10:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: repo-server
+      app.kubernetes.io/name: argocd-repo-server
+      app.kubernetes.io/part-of: argocd
+    name: argocd-repo-server-network-policy
+    namespace: argocd
+    resourceVersion: "317098"
+    uid: ceb090c8-8b6d-4d9a-afc7-c69bd7ad2ad1
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-server
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-application-controller
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-notifications-controller
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: argocd-applicationset-controller
+      ports:
+      - port: 8081
+        protocol: TCP
+    - from:
+      - namespaceSelector: {}
+      ports:
+      - port: 8084
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-repo-server
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"labels":{"app.kubernetes.io/component":"server","app.kubernetes.io/name":"argocd-server","app.kubernetes.io/part-of":"argocd"},"name":"argocd-server-network-policy","namespace":"argocd"},"spec":{"ingress":[{}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"argocd-server"}},"policyTypes":["Ingress"]}}
+    creationTimestamp: "2026-05-28T19:10:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/name: argocd-server
+      app.kubernetes.io/part-of: argocd
+    name: argocd-server-network-policy
+    namespace: argocd
+    resourceVersion: "316909"
+    uid: 56ed7184-46a8-4074-8aa6-530c8baba1a5
+  spec:
+    ingress:
+    - {}
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-server
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-allow-dns-egress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-allow-dns-egress"},"labels":{"app.kubernetes.io/name":"contact-allow-dns-egress","app.kubernetes.io/part-of":"shoppay"},"name":"contact-allow-dns-egress","namespace":"shoppay-contact"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: contact-allow-dns-egress
+      app.kubernetes.io/part-of: shoppay
+    name: contact-allow-dns-egress
+    namespace: shoppay-contact
+    resourceVersion: "322219"
+    uid: ae79bc2e-003a-4e11-802e-3981822e0439
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-db-allow-ingress-from-contact-service
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-db-allow-ingress-from-contact-service"},"labels":{"app.kubernetes.io/name":"contact-db-allow-ingress-from-contact-service","app.kubernetes.io/part-of":"shoppay"},"name":"contact-db-allow-ingress-from-contact-service","namespace":"shoppay-contact"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"contact-service"}}}],"ports":[{"port":5432,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"contact-postgresql"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: contact-db-allow-ingress-from-contact-service
+      app.kubernetes.io/part-of: shoppay
+    name: contact-db-allow-ingress-from-contact-service
+    namespace: shoppay-contact
+    resourceVersion: "322186"
+    uid: 2407c2ef-5d1b-49a1-aa60-52aae326a499
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: contact-service
+      ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: contact-postgresql
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-default-deny
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-default-deny"},"labels":{"app.kubernetes.io/name":"contact-default-deny","app.kubernetes.io/part-of":"shoppay"},"name":"contact-default-deny","namespace":"shoppay-contact"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: contact-default-deny
+      app.kubernetes.io/part-of: shoppay
+    name: contact-default-deny
+    namespace: shoppay-contact
+    resourceVersion: "322202"
+    uid: 917eaa59-9e2a-41a9-9f19-7cc3260ee45d
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-service-allow-egress-to-contact-db
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-service-allow-egress-to-contact-db"},"labels":{"app.kubernetes.io/name":"contact-service-allow-egress-to-contact-db","app.kubernetes.io/part-of":"shoppay"},"name":"contact-service-allow-egress-to-contact-db","namespace":"shoppay-contact"},"spec":{"egress":[{"ports":[{"port":5432,"protocol":"TCP"}],"to":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"contact-postgresql"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"contact-service"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: contact-service-allow-egress-to-contact-db
+      app.kubernetes.io/part-of: shoppay
+    name: contact-service-allow-egress-to-contact-db
+    namespace: shoppay-contact
+    resourceVersion: "322201"
+    uid: f7bf32d7-e5bf-4b96-ab8f-2c67d8cad812
+  spec:
+    egress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: contact-postgresql
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: contact-service
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-service-allow-ingress-from-gateway
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/contact-service-allow-ingress-from-gateway"},"labels":{"app.kubernetes.io/name":"contact-service-allow-ingress-from-gateway","app.kubernetes.io/part-of":"shoppay"},"name":"contact-service-allow-ingress-from-gateway","namespace":"shoppay-contact"},"spec":{"ingress":[{"from":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-gateway"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}}}],"ports":[{"port":4004,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"contact-service"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: contact-service-allow-ingress-from-gateway
+      app.kubernetes.io/part-of: shoppay
+    name: contact-service-allow-ingress-from-gateway
+    namespace: shoppay-contact
+    resourceVersion: "322196"
+    uid: c250fc3f-a2ba-4388-9b35-51fc9ff51747
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-gateway
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: gateway
+      ports:
+      - port: 4004
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: contact-service
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/shoppay-contact-postgresql
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-contact/shoppay-contact-postgresql"},"labels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"contact-postgresql","app.kubernetes.io/version":"17.6.0","helm.sh/chart":"contact-postgresql-16.7.27"},"name":"shoppay-contact-postgresql","namespace":"shoppay-contact"},"spec":{"egress":[{}],"ingress":[{"ports":[{"port":5432}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/name":"contact-postgresql"}},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-16T17:52:44Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: primary
+      app.kubernetes.io/instance: shoppay
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: contact-postgresql
+      app.kubernetes.io/version: 17.6.0
+      helm.sh/chart: contact-postgresql-16.7.27
+    name: shoppay-contact-postgresql
+    namespace: shoppay-contact
+    resourceVersion: "322217"
+    uid: c63db324-1540-4ad3-90ce-dc2a24d5fa53
+  spec:
+    egress:
+    - {}
+    ingress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/component: primary
+        app.kubernetes.io/instance: shoppay
+        app.kubernetes.io/name: contact-postgresql
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-allow-dns-egress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-allow-dns-egress"},"labels":{"app.kubernetes.io/name":"frontend-allow-dns-egress","app.kubernetes.io/part-of":"shoppay"},"name":"frontend-allow-dns-egress","namespace":"shoppay-frontend"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: frontend-allow-dns-egress
+      app.kubernetes.io/part-of: shoppay
+    name: frontend-allow-dns-egress
+    namespace: shoppay-frontend
+    resourceVersion: "322215"
+    uid: d06a2911-3bc0-4c82-9afc-abe2917617c6
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-allow-egress-to-gateway
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-allow-egress-to-gateway"},"labels":{"app.kubernetes.io/name":"frontend-allow-egress-to-gateway","app.kubernetes.io/part-of":"shoppay"},"name":"frontend-allow-egress-to-gateway","namespace":"shoppay-frontend"},"spec":{"egress":[{"ports":[{"port":8000,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-gateway"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"frontend"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T18:28:51Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: frontend-allow-egress-to-gateway
+      app.kubernetes.io/part-of: shoppay
+    name: frontend-allow-egress-to-gateway
+    namespace: shoppay-frontend
+    resourceVersion: "322192"
+    uid: 2f74ccc1-94c8-4fef-8baf-6ba1bc781f56
+  spec:
+    egress:
+    - ports:
+      - port: 8000
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-gateway
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: gateway
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: frontend
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-allow-public-ingress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-allow-public-ingress"},"labels":{"app.kubernetes.io/name":"frontend-allow-public-ingress","app.kubernetes.io/part-of":"shoppay"},"name":"frontend-allow-public-ingress","namespace":"shoppay-frontend"},"spec":{"ingress":[{"from":[{"ipBlock":{"cidr":"0.0.0.0/0"}}],"ports":[{"port":3000,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"frontend"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: frontend-allow-public-ingress
+      app.kubernetes.io/part-of: shoppay
+    name: frontend-allow-public-ingress
+    namespace: shoppay-frontend
+    resourceVersion: "322193"
+    uid: 686d7b7d-5ecf-4355-8226-ee0cebf542b8
+  spec:
+    ingress:
+    - from:
+      - ipBlock:
+          cidr: 0.0.0.0/0
+      ports:
+      - port: 3000
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: frontend
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-default-deny
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-frontend/frontend-default-deny"},"labels":{"app.kubernetes.io/name":"frontend-default-deny","app.kubernetes.io/part-of":"shoppay"},"name":"frontend-default-deny","namespace":"shoppay-frontend"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: frontend-default-deny
+      app.kubernetes.io/part-of: shoppay
+    name: frontend-default-deny
+    namespace: shoppay-frontend
+    resourceVersion: "322197"
+    uid: 00a2ce94-1c61-400c-9fa4-0f44b540e2cf
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-controller-admin-ingress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-controller-admin-ingress"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-controller-admin-ingress","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-controller-admin-ingress","namespace":"shoppay-gateway"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"controller"}}}],"ports":[{"port":8444,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-controller-admin-ingress
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-controller-admin-ingress
+    namespace: shoppay-gateway
+    resourceVersion: "322213"
+    uid: 43ff0f8b-e7c9-46db-ae3e-0ca2422f065f
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: controller
+      ports:
+      - port: 8444
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-dns-egress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-dns-egress"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-dns-egress","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-dns-egress","namespace":"shoppay-gateway"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-dns-egress
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-dns-egress
+    namespace: shoppay-gateway
+    resourceVersion: "322191"
+    uid: 901e2158-6e5b-4dcd-9c4e-c6f65b814513
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-contact
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-contact"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-egress-to-contact","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-egress-to-contact","namespace":"shoppay-gateway"},"spec":{"egress":[{"ports":[{"port":4004,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-contact"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"contact-service"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-egress-to-contact
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-egress-to-contact
+    namespace: shoppay-gateway
+    resourceVersion: "322199"
+    uid: 6a5a1b3c-ed96-4bd7-b493-34d334a7c81f
+  spec:
+    egress:
+    - ports:
+      - port: 4004
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-contact
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: contact-service
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-order
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-order"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-egress-to-order","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-egress-to-order","namespace":"shoppay-gateway"},"spec":{"egress":[{"ports":[{"port":4002,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-order"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-service"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-egress-to-order
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-egress-to-order
+    namespace: shoppay-gateway
+    resourceVersion: "322185"
+    uid: 8cf6b67d-5d88-4319-9ac6-9d5900a695c4
+  spec:
+    egress:
+    - ports:
+      - port: 4002
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-order
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: order-service
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-payment
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-payment"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-egress-to-payment","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-egress-to-payment","namespace":"shoppay-gateway"},"spec":{"egress":[{"ports":[{"port":4003,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-payment"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-service"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-egress-to-payment
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-egress-to-payment
+    namespace: shoppay-gateway
+    resourceVersion: "322206"
+    uid: 4ad12354-4009-41af-834e-21a128814ef2
+  spec:
+    egress:
+    - ports:
+      - port: 4003
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-payment
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: payment-service
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-product
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-egress-to-product"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-egress-to-product","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-egress-to-product","namespace":"shoppay-gateway"},"spec":{"egress":[{"ports":[{"port":4001,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-product"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"product-service"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-egress-to-product
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-egress-to-product
+    namespace: shoppay-gateway
+    resourceVersion: "322216"
+    uid: ba11c139-7034-4b0b-acb0-dcca0b0a44fb
+  spec:
+    egress:
+    - ports:
+      - port: 4001
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-product
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: product-service
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-frontend-ingress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-frontend-ingress"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-frontend-ingress","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-frontend-ingress","namespace":"shoppay-gateway"},"spec":{"ingress":[{"from":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-frontend"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"frontend"}}}],"ports":[{"port":8000,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T18:28:51Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-frontend-ingress
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-frontend-ingress
+    namespace: shoppay-gateway
+    resourceVersion: "322221"
+    uid: 3de90b59-bd39-44c4-b45a-886d3c2ae008
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-frontend
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: frontend
+      ports:
+      - port: 8000
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-public-ingress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-allow-public-ingress"},"labels":{"app.kubernetes.io/name":"gateway-proxy-allow-public-ingress","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-allow-public-ingress","namespace":"shoppay-gateway"},"spec":{"ingress":[{"from":[{"ipBlock":{"cidr":"0.0.0.0/0"}}],"ports":[{"port":8000,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-allow-public-ingress
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-allow-public-ingress
+    namespace: shoppay-gateway
+    resourceVersion: "322220"
+    uid: ede49ea1-4439-4c2e-9f8b-292c430e284e
+  spec:
+    ingress:
+    - from:
+      - ipBlock:
+          cidr: 0.0.0.0/0
+      ports:
+      - port: 8000
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-default-deny
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-gateway/gateway-proxy-default-deny"},"labels":{"app.kubernetes.io/name":"gateway-proxy-default-deny","app.kubernetes.io/part-of":"shoppay"},"name":"gateway-proxy-default-deny","namespace":"shoppay-gateway"},"spec":{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T11:51:39Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: gateway-proxy-default-deny
+      app.kubernetes.io/part-of: shoppay
+    name: gateway-proxy-default-deny
+    namespace: shoppay-gateway
+    resourceVersion: "322207"
+    uid: add1e05b-756e-43c7-969a-af41366a7a9a
+  spec:
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: gateway
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-allow-dns-egress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-allow-dns-egress"},"labels":{"app.kubernetes.io/name":"order-allow-dns-egress","app.kubernetes.io/part-of":"shoppay"},"name":"order-allow-dns-egress","namespace":"shoppay-order"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: order-allow-dns-egress
+      app.kubernetes.io/part-of: shoppay
+    name: order-allow-dns-egress
+    namespace: shoppay-order
+    resourceVersion: "322205"
+    uid: f9cbdc4e-5af0-4400-8535-8ef4602d853d
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-db-allow-ingress-from-order-service
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-db-allow-ingress-from-order-service"},"labels":{"app.kubernetes.io/name":"order-db-allow-ingress-from-order-service","app.kubernetes.io/part-of":"shoppay"},"name":"order-db-allow-ingress-from-order-service","namespace":"shoppay-order"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-service"}}}],"ports":[{"port":5432,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-postgresql"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: order-db-allow-ingress-from-order-service
+      app.kubernetes.io/part-of: shoppay
+    name: order-db-allow-ingress-from-order-service
+    namespace: shoppay-order
+    resourceVersion: "322209"
+    uid: 39b80fd7-5340-4996-af18-31858f1d3b42
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: order-service
+      ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: order-postgresql
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-default-deny
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-default-deny"},"labels":{"app.kubernetes.io/name":"order-default-deny","app.kubernetes.io/part-of":"shoppay"},"name":"order-default-deny","namespace":"shoppay-order"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: order-default-deny
+      app.kubernetes.io/part-of: shoppay
+    name: order-default-deny
+    namespace: shoppay-order
+    resourceVersion: "322214"
+    uid: d0299a3a-d899-48f6-968c-800edd4df447
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-service-allow-egress-to-order-db
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-service-allow-egress-to-order-db"},"labels":{"app.kubernetes.io/name":"order-service-allow-egress-to-order-db","app.kubernetes.io/part-of":"shoppay"},"name":"order-service-allow-egress-to-order-db","namespace":"shoppay-order"},"spec":{"egress":[{"ports":[{"port":5432,"protocol":"TCP"}],"to":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-postgresql"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-service"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: order-service-allow-egress-to-order-db
+      app.kubernetes.io/part-of: shoppay
+    name: order-service-allow-egress-to-order-db
+    namespace: shoppay-order
+    resourceVersion: "322187"
+    uid: a8efbdcc-ba57-4396-b1cf-1ebd08647d2f
+  spec:
+    egress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: order-postgresql
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: order-service
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-service-allow-egress-to-payment-service
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-service-allow-egress-to-payment-service"},"labels":{"app.kubernetes.io/name":"order-service-allow-egress-to-payment-service","app.kubernetes.io/part-of":"shoppay"},"name":"order-service-allow-egress-to-payment-service","namespace":"shoppay-order"},"spec":{"egress":[{"ports":[{"port":4003,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-payment"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-service"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-service"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: order-service-allow-egress-to-payment-service
+      app.kubernetes.io/part-of: shoppay
+    name: order-service-allow-egress-to-payment-service
+    namespace: shoppay-order
+    resourceVersion: "322198"
+    uid: 525c37c9-565f-4382-800d-f5ea06341930
+  spec:
+    egress:
+    - ports:
+      - port: 4003
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-payment
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: payment-service
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: order-service
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-service-allow-ingress-from-gateway
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/order-service-allow-ingress-from-gateway"},"labels":{"app.kubernetes.io/name":"order-service-allow-ingress-from-gateway","app.kubernetes.io/part-of":"shoppay"},"name":"order-service-allow-ingress-from-gateway","namespace":"shoppay-order"},"spec":{"ingress":[{"from":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-gateway"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}}}],"ports":[{"port":4002,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-service"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: order-service-allow-ingress-from-gateway
+      app.kubernetes.io/part-of: shoppay
+    name: order-service-allow-ingress-from-gateway
+    namespace: shoppay-order
+    resourceVersion: "322184"
+    uid: ff9a8858-688a-4e42-83cb-e5b7b90d327c
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-gateway
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: gateway
+      ports:
+      - port: 4002
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: order-service
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/shoppay-order-postgresql
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-order/shoppay-order-postgresql"},"labels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"order-postgresql","app.kubernetes.io/version":"17.6.0","helm.sh/chart":"order-postgresql-16.7.27"},"name":"shoppay-order-postgresql","namespace":"shoppay-order"},"spec":{"egress":[{}],"ingress":[{"ports":[{"port":5432}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/name":"order-postgresql"}},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-16T17:52:44Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: primary
+      app.kubernetes.io/instance: shoppay
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: order-postgresql
+      app.kubernetes.io/version: 17.6.0
+      helm.sh/chart: order-postgresql-16.7.27
+    name: shoppay-order-postgresql
+    namespace: shoppay-order
+    resourceVersion: "322194"
+    uid: c2c65eaf-be19-46c9-b319-498c55c81f4b
+  spec:
+    egress:
+    - {}
+    ingress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/component: primary
+        app.kubernetes.io/instance: shoppay
+        app.kubernetes.io/name: order-postgresql
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-allow-dns-egress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-allow-dns-egress"},"labels":{"app.kubernetes.io/name":"payment-allow-dns-egress","app.kubernetes.io/part-of":"shoppay"},"name":"payment-allow-dns-egress","namespace":"shoppay-payment"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: payment-allow-dns-egress
+      app.kubernetes.io/part-of: shoppay
+    name: payment-allow-dns-egress
+    namespace: shoppay-payment
+    resourceVersion: "322208"
+    uid: 14dac89e-bb7c-4597-abc6-b34134fe7fd9
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-db-allow-ingress-from-payment-service
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-db-allow-ingress-from-payment-service"},"labels":{"app.kubernetes.io/name":"payment-db-allow-ingress-from-payment-service","app.kubernetes.io/part-of":"shoppay"},"name":"payment-db-allow-ingress-from-payment-service","namespace":"shoppay-payment"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-service"}}}],"ports":[{"port":5432,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-postgresql"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: payment-db-allow-ingress-from-payment-service
+      app.kubernetes.io/part-of: shoppay
+    name: payment-db-allow-ingress-from-payment-service
+    namespace: shoppay-payment
+    resourceVersion: "322211"
+    uid: e7c767fa-9443-4362-b0db-efb820ab44a1
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: payment-service
+      ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: payment-postgresql
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-default-deny
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-default-deny"},"labels":{"app.kubernetes.io/name":"payment-default-deny","app.kubernetes.io/part-of":"shoppay"},"name":"payment-default-deny","namespace":"shoppay-payment"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: payment-default-deny
+      app.kubernetes.io/part-of: shoppay
+    name: payment-default-deny
+    namespace: shoppay-payment
+    resourceVersion: "322190"
+    uid: 7120e15e-4b5f-4325-8f9e-08285441e47e
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-service-allow-egress-to-payment-db
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-service-allow-egress-to-payment-db"},"labels":{"app.kubernetes.io/name":"payment-service-allow-egress-to-payment-db","app.kubernetes.io/part-of":"shoppay"},"name":"payment-service-allow-egress-to-payment-db","namespace":"shoppay-payment"},"spec":{"egress":[{"ports":[{"port":5432,"protocol":"TCP"}],"to":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-postgresql"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-service"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: payment-service-allow-egress-to-payment-db
+      app.kubernetes.io/part-of: shoppay
+    name: payment-service-allow-egress-to-payment-db
+    namespace: shoppay-payment
+    resourceVersion: "322212"
+    uid: 84770918-d837-4a65-9a4c-965f3e8574ee
+  spec:
+    egress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: payment-postgresql
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: payment-service
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-service-allow-ingress-from-gateway
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-service-allow-ingress-from-gateway"},"labels":{"app.kubernetes.io/name":"payment-service-allow-ingress-from-gateway","app.kubernetes.io/part-of":"shoppay"},"name":"payment-service-allow-ingress-from-gateway","namespace":"shoppay-payment"},"spec":{"ingress":[{"from":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-gateway"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}}}],"ports":[{"port":4003,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-service"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: payment-service-allow-ingress-from-gateway
+      app.kubernetes.io/part-of: shoppay
+    name: payment-service-allow-ingress-from-gateway
+    namespace: shoppay-payment
+    resourceVersion: "322203"
+    uid: 118e9c99-e1cd-45c5-ae8f-d0965d819b8e
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-gateway
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: gateway
+      ports:
+      - port: 4003
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: payment-service
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-service-allow-ingress-from-order-service
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/payment-service-allow-ingress-from-order-service"},"labels":{"app.kubernetes.io/name":"payment-service-allow-ingress-from-order-service","app.kubernetes.io/part-of":"shoppay"},"name":"payment-service-allow-ingress-from-order-service","namespace":"shoppay-payment"},"spec":{"ingress":[{"from":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-order"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"order-service"}}}],"ports":[{"port":4003,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"payment-service"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: payment-service-allow-ingress-from-order-service
+      app.kubernetes.io/part-of: shoppay
+    name: payment-service-allow-ingress-from-order-service
+    namespace: shoppay-payment
+    resourceVersion: "322189"
+    uid: 41642cac-105c-435f-9a7c-75c613b1610a
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-order
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: order-service
+      ports:
+      - port: 4003
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: payment-service
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/shoppay-payment-postgresql
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-payment/shoppay-payment-postgresql"},"labels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"payment-postgresql","app.kubernetes.io/version":"17.6.0","helm.sh/chart":"payment-postgresql-16.7.27"},"name":"shoppay-payment-postgresql","namespace":"shoppay-payment"},"spec":{"egress":[{}],"ingress":[{"ports":[{"port":5432}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/name":"payment-postgresql"}},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-16T17:52:44Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: primary
+      app.kubernetes.io/instance: shoppay
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: payment-postgresql
+      app.kubernetes.io/version: 17.6.0
+      helm.sh/chart: payment-postgresql-16.7.27
+    name: shoppay-payment-postgresql
+    namespace: shoppay-payment
+    resourceVersion: "322195"
+    uid: 4d926599-d751-4547-b46c-98e977b8e5b5
+  spec:
+    egress:
+    - {}
+    ingress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/component: primary
+        app.kubernetes.io/instance: shoppay
+        app.kubernetes.io/name: payment-postgresql
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-allow-dns-egress
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-allow-dns-egress"},"labels":{"app.kubernetes.io/name":"product-allow-dns-egress","app.kubernetes.io/part-of":"shoppay"},"name":"product-allow-dns-egress","namespace":"shoppay-product"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: product-allow-dns-egress
+      app.kubernetes.io/part-of: shoppay
+    name: product-allow-dns-egress
+    namespace: shoppay-product
+    resourceVersion: "322204"
+    uid: 17cfa2e1-855b-4835-9f0b-0d2904d656da
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-db-allow-ingress-from-product-service
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-db-allow-ingress-from-product-service"},"labels":{"app.kubernetes.io/name":"product-db-allow-ingress-from-product-service","app.kubernetes.io/part-of":"shoppay"},"name":"product-db-allow-ingress-from-product-service","namespace":"shoppay-product"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"product-service"}}}],"ports":[{"port":5432,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"product-postgresql"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: product-db-allow-ingress-from-product-service
+      app.kubernetes.io/part-of: shoppay
+    name: product-db-allow-ingress-from-product-service
+    namespace: shoppay-product
+    resourceVersion: "322188"
+    uid: 4e173a40-e477-4d03-a3db-f594237b945b
+  spec:
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: product-service
+      ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: product-postgresql
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-default-deny
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-default-deny"},"labels":{"app.kubernetes.io/name":"product-default-deny","app.kubernetes.io/part-of":"shoppay"},"name":"product-default-deny","namespace":"shoppay-product"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: product-default-deny
+      app.kubernetes.io/part-of: shoppay
+    name: product-default-deny
+    namespace: shoppay-product
+    resourceVersion: "322218"
+    uid: 21df4dba-a869-49eb-8d77-ceeb22e34e25
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-service-allow-egress-to-product-db
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-service-allow-egress-to-product-db"},"labels":{"app.kubernetes.io/name":"product-service-allow-egress-to-product-db","app.kubernetes.io/part-of":"shoppay"},"name":"product-service-allow-egress-to-product-db","namespace":"shoppay-product"},"spec":{"egress":[{"ports":[{"port":5432,"protocol":"TCP"}],"to":[{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"product-postgresql"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"product-service"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: product-service-allow-egress-to-product-db
+      app.kubernetes.io/part-of: shoppay
+    name: product-service-allow-egress-to-product-db
+    namespace: shoppay-product
+    resourceVersion: "322210"
+    uid: 1f4ad64d-b41a-446d-8feb-cc9734002438
+  spec:
+    egress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app.kubernetes.io/name: product-postgresql
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: product-service
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-service-allow-egress-to-vault
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-service-allow-egress-to-vault"},"labels":{"app.kubernetes.io/name":"product-service-allow-egress-to-vault","app.kubernetes.io/part-of":"shoppay"},"name":"product-service-allow-egress-to-vault","namespace":"shoppay-product"},"spec":{"egress":[{"ports":[{"port":8200,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-vault"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"vault"}}}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"product-service"}},"policyTypes":["Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: product-service-allow-egress-to-vault
+      app.kubernetes.io/part-of: shoppay
+    name: product-service-allow-egress-to-vault
+    namespace: shoppay-product
+    resourceVersion: "322182"
+    uid: 957a9488-a1ac-4a41-94e7-ee948bb06120
+  spec:
+    egress:
+    - ports:
+      - port: 8200
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-vault
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: vault
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: product-service
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-service-allow-ingress-from-gateway
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/product-service-allow-ingress-from-gateway"},"labels":{"app.kubernetes.io/name":"product-service-allow-ingress-from-gateway","app.kubernetes.io/part-of":"shoppay"},"name":"product-service-allow-ingress-from-gateway","namespace":"shoppay-product"},"spec":{"ingress":[{"from":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"shoppay-gateway"}},"podSelector":{"matchLabels":{"app.kubernetes.io/name":"gateway"}}}],"ports":[{"port":4001,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/name":"product-service"}},"policyTypes":["Ingress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-18T12:16:27Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: product-service-allow-ingress-from-gateway
+      app.kubernetes.io/part-of: shoppay
+    name: product-service-allow-ingress-from-gateway
+    namespace: shoppay-product
+    resourceVersion: "322200"
+    uid: afbe4ab5-bac3-48d7-8b19-897c86633bbf
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: shoppay-gateway
+        podSelector:
+          matchLabels:
+            app.kubernetes.io/name: gateway
+      ports:
+      - port: 4001
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/name: product-service
+    policyTypes:
+    - Ingress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      argocd.argoproj.io/tracking-id: shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/shoppay-product-postgresql
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"shoppay:networking.k8s.io/NetworkPolicy:shoppay-product/shoppay-product-postgresql"},"labels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/managed-by":"Helm","app.kubernetes.io/name":"product-postgresql","app.kubernetes.io/version":"17.6.0","helm.sh/chart":"product-postgresql-16.7.27"},"name":"shoppay-product-postgresql","namespace":"shoppay-product"},"spec":{"egress":[{}],"ingress":[{"ports":[{"port":5432}]}],"podSelector":{"matchLabels":{"app.kubernetes.io/component":"primary","app.kubernetes.io/instance":"shoppay","app.kubernetes.io/name":"product-postgresql"}},"policyTypes":["Ingress","Egress"]}}
+      meta.helm.sh/release-name: shoppay
+      meta.helm.sh/release-namespace: default
+    creationTimestamp: "2026-05-16T17:52:44Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: primary
+      app.kubernetes.io/instance: shoppay
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: product-postgresql
+      app.kubernetes.io/version: 17.6.0
+      helm.sh/chart: product-postgresql-16.7.27
+    name: shoppay-product-postgresql
+    namespace: shoppay-product
+    resourceVersion: "322183"
+    uid: fe8fdcd7-9221-4fea-93ed-d73190a6897d
+  spec:
+    egress:
+    - {}
+    ingress:
+    - ports:
+      - port: 5432
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app.kubernetes.io/component: primary
+        app.kubernetes.io/instance: shoppay
+        app.kubernetes.io/name: product-postgresql
+    policyTypes:
+    - Ingress
+    - Egress
+kind: List
+metadata:
+  resourceVersion: ""

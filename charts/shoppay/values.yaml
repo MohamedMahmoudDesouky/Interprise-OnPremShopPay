@@ -384,7 +384,6 @@ frontend:
 
 networkPolicies:
   enabled: true
-
 grafana:
   grafana.ini:
     server:
