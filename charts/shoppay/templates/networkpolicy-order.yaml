@@ -67,6 +67,14 @@ spec:
       ports:
         - protocol: TCP
           port: {{ .Values.orderService.service.targetPort }}
+    - from:
+        - namespaceSelector: {} # ﺃﻭ ﺡﺩﺩ namespace monitoring ﺇﺫﺍ ﻚﻨﺗ ﺖﻋﺮﻔﻫ
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 4005 # ﻎﻳّﺭ ﻩﺫﺍ ﺎﻟﺮﻘﻣ ﺢﺴﺑ ﺎﻠﺧﺪﻣﺓ (4002 ﻞﻠـ order, 4003 ﻞﻠـ payment, 4004 ﻞﻠـ contact)
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -115,6 +123,14 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
+    - from:
+        - namespaceSelector: {} # ﺃﻭ ﺡﺩﺩ namespace monitoring ﺇﺫﺍ ﻚﻨﺗ ﺖﻋﺮﻔﻫ
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: prometheus
+      ports:
+        - protocol: TCP
+          port: 4005 # ﻎﻳّﺭ ﻩﺫﺍ ﺎﻟﺮﻘﻣ ﺢﺴﺑ ﺎﻠﺧﺪﻣﺓ (4002 ﻞﻠـ order, 4003 ﻞﻠـ payment, 4004 ﻞﻠـ contact)
 
 ---
 apiVersion: networking.k8s.io/v1

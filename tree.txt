@@ -3467,10 +3467,9 @@
 │       │   ├── contact-service.yaml
 │       │   ├── frontend.yaml
 │       │   ├── gateway-upstream-services.yaml
-│       │   ├── monitoring
-│       │   │   └── grafana-ingress.yaml
 │       │   ├── namespaces.yaml
 │       │   ├── networkpolicy-contact.yaml
+│       │   ├── networkpolicy-dns.yaml
 │       │   ├── networkpolicy-frontend.yaml
 │       │   ├── networkpolicy-gateway.yaml
 │       │   ├── networkpolicy-order.yaml
@@ -28958,6 +28957,7 @@
 │           ├── product-service.yaml
 │           └── shoppay.yaml
 ├── Linting
+├── networkpolicies-all.yaml
 ├── package-lock.json
 ├── README.md
 ├── README.old.md
@@ -29010,4 +29010,4 @@
 │   └── verify-production.sh
 └── tree.txt
 
-2556 directories, 26455 files
+2555 directories, 26456 files

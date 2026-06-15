@@ -236,8 +236,8 @@ productService:
 
   vault:
     enabled: true
-    role: product-service
-    secretPath: secret/data/shoppay/product-service/admin-auth
+    role: shoppay-product-role
+    secretPath: secret/data/shoppay/product/admin
     authFile: /vault/secrets/admin-auth.json
 
   resources:
@@ -384,3 +384,26 @@ frontend:
 
 networkPolicies:
   enabled: true
+
+monitoring:
+  enabled: true
+
+# إعدادات حزمة kube-prometheus-stack
+monitoring: # هذا يتطابق مع alias الذي وضعناه في Chart.yaml
+  prometheus:
+    prometheusSpec:
+      serviceMonitorSelectorNilUsesHelmValues: false # يسمح بمسح كل الـ ServiceMonitors في الـ Namespace
+      retention: 7d
+  grafana:
+    enabled: true
+    adminPassword: "admin123" # غيّر هذه الكلمة المرور لكلمة مرور قوية
+    service:
+      type: NodePort # أو ClusterIP مع Ingress إذا كان لديك Ingress Controller
+      nodePort: 30300 # منفذ ثابت للوصول لـ Grafana من الخار
+
+
+vault:
+    enabled: true
+    role: shoppay-product-role
+    secretPath: secret/data/shoppay/product/admin
+    authFile: /vault/secrets/admin-auth.json

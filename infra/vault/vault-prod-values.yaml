@@ -1,0 +1,47 @@
+# infra/vault/vault-prod-values.yaml
+global:
+  tlsDisable: true # للتبسيط في بيئة التطوير/الإنتاج الداخلي، يُفضل تفعيله لاحقاً مع شهادات TLS حقيقية
+
+server:
+  ha:
+    enabled: true
+    replicas: 3 # عدد الـ Pods (فردي لضمان الـ Quorum في Raft)
+    raft:
+      enabled: true
+      setNodeId: true
+      config: |
+        ui = true
+        listener "tcp" {
+          tls_disable = 1
+          address = "[::]:8200"
+          cluster_address = "[::]:8201"
+        }
+        storage "raft" {
+          path = "/vault/data"
+        }
+        service_registration "kubernetes" {}
+
+  # تعطيل وضع التطوير (Dev mode)
+  dev:
+    enabled: false
+
+  # موارد مناسبة للإنتاج
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+injector:
+  enabled: true
+  replicas: 2
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+
+ui:
+  enabled: true
+  serviceType: "ClusterIP"

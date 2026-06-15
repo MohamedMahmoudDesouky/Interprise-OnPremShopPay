@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import pg from "pg";
+import promClient from "prom-client";
 
 const { Pool } = pg;
 
@@ -8,7 +9,30 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+const register = new promClient.Registry();
+promClient.collectDefaultMetrics({ register });
 
+// 2. إضافة مقياس مخصص لزمن استجابة الـ HTTP
+const httpRequestDurationMicroseconds = new promClient.Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'code'],
+  buckets: [0.1, 0.5, 1, 1.5, 2, 5] 
+});
+register.registerMetric(httpRequestDurationMicroseconds);
+
+// 3. Middleware لقياس وقت الاستجابة لكل Request
+app.use((req, res, next) => {
+  const end = httpRequestDurationMicroseconds.startTimer();
+  res.on('finish', () => {
+    end({ 
+      method: req.method, 
+      route: req.route?.path || req.path, 
+      code: res.statusCode 
+    });
+  });
+  next();
+});
 const PORT = process.env.PORT || 4004;
 const DATABASE_URL = process.env.DATABASE_URL;
 
@@ -152,7 +176,10 @@ app.get("/api/contact/messages", async (req, res) => {
     });
   }
 });
-
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 async function startServer() {
   try {
     await initializeDatabase();

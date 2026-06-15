@@ -27,7 +27,7 @@ spec:
         vault.hashicorp.com/role: {{ .Values.productService.vault.role | quote }}
         vault.hashicorp.com/agent-inject-secret-admin-auth.json: {{ .Values.productService.vault.secretPath | quote }}
         vault.hashicorp.com/agent-inject-template-admin-auth.json: |
-          {{`{{- with secret "secret/data/shoppay/product-service/admin-auth" -}}`}}
+          {{`{{- with secret "`}}{{ .Values.productService.vault.secretPath }}{{`" -}}`}}
           {
             "ADMIN_USERNAME": "{{`{{ .Data.data.ADMIN_USERNAME }}`}}",
             "ADMIN_PASSWORD_HASH": "{{`{{ .Data.data.ADMIN_PASSWORD_HASH }}`}}",
