@@ -106,6 +106,8 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Values.paymentService.name }}
     app.kubernetes.io/part-of: shoppay
+  annotations:
+    ingress.kubernetes.io/service-upstream: "true"
 
 spec:
   type: {{ .Values.paymentService.service.type }}

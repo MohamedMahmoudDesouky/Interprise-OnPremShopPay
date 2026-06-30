@@ -51,6 +51,8 @@ spec:
               value: "0.0.0.0"
             - name: NODE_ENV
               value: "production"
+            - name: INTERNAL_API_BASE_URL
+              value: "http://kong-kong-proxy.{{ .Values.namespaces.gateway }}.svc.cluster.local"
 
           readinessProbe:
             httpGet:
@@ -91,6 +93,18 @@ spec:
             capabilities:
               drop:
                 - ALL
+
+          volumeMounts:
+            - name: next-cache
+              mountPath: /app/.next/cache
+            - name: tmp-dir
+              mountPath: /tmp
+
+      volumes:
+        - name: next-cache
+          emptyDir: {}
+        - name: tmp-dir
+          emptyDir: {}
 
 ---
 apiVersion: v1

@@ -1,81 +1,40 @@
-{{- if .Values.networkPolicies.enabled }}
+{{- if and .Values.networkPolicies .Values.networkPolicies.enabled }}
 
+# ---------------------------
+# DEFAULT DENY
+# ---------------------------
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: gateway-proxy-default-deny
+  name: gateway-default-deny
   namespace: {{ .Values.namespaces.gateway }}
   labels:
-    app.kubernetes.io/name: gateway-proxy-default-deny
+    app.kubernetes.io/name: gateway-default-deny
     app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/component: app
+      app.kubernetes.io/instance: kong
+      app.kubernetes.io/name: kong
   policyTypes:
     - Ingress
     - Egress
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: gateway-proxy-allow-public-ingress
-  namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-public-ingress
-    app.kubernetes.io/part-of: shoppay
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: gateway
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - ipBlock:
-            cidr: 0.0.0.0/0
-      ports:
-        - protocol: TCP
-          port: 8000
 
----
+# ---------------------------
+# DNS EGRESS (IMPORTANT FIX)
+# ---------------------------
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: gateway-proxy-allow-controller-admin-ingress
+  name: gateway-allow-dns-egress
   namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-controller-admin-ingress
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: controller
-      ports:
-        - protocol: TCP
-          port: 8444
-
----
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: gateway-proxy-allow-dns-egress
-  namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-dns-egress
-    app.kubernetes.io/part-of: shoppay
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: kong
   policyTypes:
     - Egress
   egress:
@@ -83,9 +42,6 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
       ports:
         - protocol: UDP
           port: 53
@@ -93,18 +49,44 @@ spec:
           port: 53
 
 ---
+
+# ---------------------------
+# FRONTEND INGRESS TO GATEWAY
+# ---------------------------
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: gateway-proxy-allow-egress-to-product
+  name: gateway-allow-frontend-ingress
   namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-egress-to-product
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: kong
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.frontend }}
+      ports:
+        - protocol: TCP
+          port: 8000
+
+---
+
+# ---------------------------
+# PRODUCT EGRESS
+# ---------------------------
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gateway-allow-egress-to-product
+  namespace: {{ .Values.namespaces.gateway }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: kong
   policyTypes:
     - Egress
   egress:
@@ -114,24 +96,25 @@ spec:
               kubernetes.io/metadata.name: {{ .Values.namespaces.product }}
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: {{ .Values.productService.name }}
+              app.kubernetes.io/name: product-service
       ports:
         - protocol: TCP
-          port: {{ .Values.productService.service.targetPort }}
+          port: 4001
 
 ---
+
+# ---------------------------
+# ORDER EGRESS
+# ---------------------------
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: gateway-proxy-allow-egress-to-order
+  name: gateway-allow-egress-to-order
   namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-egress-to-order
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: kong
   policyTypes:
     - Egress
   egress:
@@ -141,24 +124,25 @@ spec:
               kubernetes.io/metadata.name: {{ .Values.namespaces.order }}
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: {{ .Values.orderService.name }}
+              app.kubernetes.io/name: order-service
       ports:
         - protocol: TCP
-          port: {{ .Values.orderService.service.targetPort }}
+          port: 4002
 
 ---
+
+# ---------------------------
+# PAYMENT EGRESS
+# ---------------------------
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: gateway-proxy-allow-egress-to-payment
+  name: gateway-allow-egress-to-payment
   namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-egress-to-payment
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: kong
   policyTypes:
     - Egress
   egress:
@@ -168,24 +152,25 @@ spec:
               kubernetes.io/metadata.name: {{ .Values.namespaces.payment }}
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: {{ .Values.paymentService.name }}
+              app.kubernetes.io/name: payment-service
       ports:
         - protocol: TCP
-          port: {{ .Values.paymentService.service.targetPort }}
+          port: 4003
 
 ---
+
+# ---------------------------
+# CONTACT EGRESS
+# ---------------------------
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: gateway-proxy-allow-egress-to-contact
+  name: gateway-allow-egress-to-contact
   namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-egress-to-contact
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: kong
   policyTypes:
     - Egress
   egress:
@@ -195,35 +180,31 @@ spec:
               kubernetes.io/metadata.name: {{ .Values.namespaces.contact }}
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: {{ .Values.contactService.name }}
+              app.kubernetes.io/name: contact-service
       ports:
         - protocol: TCP
-          port: {{ .Values.contactService.service.targetPort }}
-
+          port: 4004
 
 ---
+
+# ---------------------------
+# PUBLIC INGRESS
+# ---------------------------
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: gateway-proxy-allow-frontend-ingress
+  name: gateway-allow-public-ingress
   namespace: {{ .Values.namespaces.gateway }}
-  labels:
-    app.kubernetes.io/name: gateway-proxy-allow-frontend-ingress
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: kong
   policyTypes:
     - Ingress
   ingress:
     - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: {{ .Values.namespaces.frontend }}
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: {{ .Values.frontend.name }}
+        - ipBlock:
+            cidr: 0.0.0.0/0
       ports:
         - protocol: TCP
           port: 8000

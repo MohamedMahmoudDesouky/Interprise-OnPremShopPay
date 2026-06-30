@@ -5,9 +5,6 @@ kind: NetworkPolicy
 metadata:
   name: product-default-deny
   namespace: {{ .Values.namespaces.product }}
-  labels:
-    app.kubernetes.io/name: product-default-deny
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector: {}
   policyTypes:
@@ -15,14 +12,12 @@ spec:
     - Egress
 
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: product-allow-dns-egress
   namespace: {{ .Values.namespaces.product }}
-  labels:
-    app.kubernetes.io/name: product-allow-dns-egress
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector: {}
   policyTypes:
@@ -32,9 +27,6 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
       ports:
         - protocol: UDP
           port: 53
@@ -42,14 +34,12 @@ spec:
           port: 53
 
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: product-service-allow-ingress-from-gateway
   namespace: {{ .Values.namespaces.product }}
-  labels:
-    app.kubernetes.io/name: product-service-allow-ingress-from-gateway
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
@@ -61,29 +51,36 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: gateway
       ports:
         - protocol: TCP
           port: {{ .Values.productService.service.targetPort }}
-    - from:
-        - namespaceSelector: {} # أو حدد namespace monitoring إذا كنت تعرفه
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
-      ports:
-        - protocol: TCP
-          port: 4005 # غيّر هذا الرقم حسب الخدمة (4002 للـ order, 4003 للـ payment, 4004 للـ contact)
+
 ---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: product-allow-egress-response
+  namespace: {{ .Values.namespaces.product }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.productService.name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
+
+---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: product-service-allow-egress-to-product-db
   namespace: {{ .Values.namespaces.product }}
-  labels:
-    app.kubernetes.io/name: product-service-allow-egress-to-product-db
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
@@ -100,14 +97,12 @@ spec:
           port: 5432
 
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: product-db-allow-ingress-from-product-service
+  name: product-service-allow-ingress-from-self
   namespace: {{ .Values.namespaces.product }}
-  labels:
-    app.kubernetes.io/name: product-db-allow-ingress-from-product-service
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
@@ -122,24 +117,14 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
-    - from:
-        - namespaceSelector: {} # ﺃﻭ ﺡﺩﺩ namespace monitoring ﺇﺫﺍ ﻚﻨﺗ ﺖﻋﺮﻔﻫ
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
-      ports:
-        - protocol: TCP
-          port: 4005 # ﻎﻳّﺭ ﻩﺫﺍ ﺎﻟﺮﻘﻣ ﺢﺴﺑ ﺎﻠﺧﺪﻣﺓ (4002 ﻞﻠـ order, 4003 ﻞﻠـ payment, 4004 ﻞﻠـ contact)
 
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: product-service-allow-egress-to-vault
   namespace: {{ .Values.namespaces.product }}
-  labels:
-    app.kubernetes.io/name: product-service-allow-egress-to-vault
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:

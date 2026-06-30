@@ -121,14 +121,14 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-
 metadata:
   name: {{ .Values.productService.name }}
   namespace: {{ .Values.namespaces.product }}
-
   labels:
     app.kubernetes.io/name: {{ .Values.productService.name }}
     app.kubernetes.io/part-of: shoppay
+  annotations:
+    ingress.kubernetes.io/service-upstream: "true"
 
 spec:
   type: {{ .Values.productService.service.type }}

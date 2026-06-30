@@ -101,14 +101,14 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-
 metadata:
   name: {{ .Values.contactService.name }}
   namespace: {{ .Values.namespaces.contact }}
-
   labels:
     app.kubernetes.io/name: {{ .Values.contactService.name }}
     app.kubernetes.io/part-of: shoppay
+  annotations:
+    ingress.kubernetes.io/service-upstream: "true"
 
 spec:
   type: {{ .Values.contactService.service.type }}

@@ -1,0 +1,27 @@
+{{- if .Values.ingress.enabled }}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: payment-service
+  namespace: {{ .Values.namespaces.payment }}
+  labels:
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/part-of: shoppay
+
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+
+  rules:
+    - http:
+        paths:
+          - path: /api/payments
+            pathType: Prefix
+            backend:
+              service:
+                name: payment-service
+                port:
+                  number: 4003
+
+{{- end }}

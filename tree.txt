@@ -6348,15 +6348,17 @@
 │       │   └── postgresql-16.7.27.tgz
 │       ├── Chart.yaml
 │       ├── templates
-│       │   ├── api-ingress.yaml
 │       │   ├── contact-service.yaml
 │       │   ├── frontend.yaml
-│       │   ├── gateway-upstream-services.yaml
+│       │   ├── ingress
+│       │   │   ├── contact-ingress.yaml
+│       │   │   ├── order-ingress.yaml
+│       │   │   ├── payment-ingress.yaml
+│       │   │   └── product-ingress.yaml
 │       │   ├── monitoring
 │       │   │   └── servicemonitors.yaml
 │       │   ├── namespaces.yaml
 │       │   ├── networkpolicy-contact.yaml
-│       │   ├── networkpolicy-dns.yaml
 │       │   ├── networkpolicy-frontend.yaml
 │       │   ├── networkpolicy-gateway.yaml
 │       │   ├── networkpolicy-order.yaml
@@ -6368,6 +6370,7 @@
 │       │   ├── serviceaccounts.yaml
 │       │   └── vault-secretstore.yaml
 │       └── values.yaml
+├── curl-test.yaml
 ├── docker-compose.yml
 ├── Documentation
 │   └── Screenshot From 2026-05-11 23-29-30.png
@@ -31837,8 +31840,18 @@
 ├── helm
 ├── infra
 │   ├── kong
+│   │   ├── certificates
+│   │   ├── consumers
+│   │   ├── ingress
+│   │   │   └── roduct-ingress.yaml
+│   │   ├── install.sh
 │   │   ├── kong-admin-internal-service.yaml
-│   │   └── values.yaml
+│   │   ├── plugins
+│   │   ├── README.md
+│   │   ├── uninstall.sh
+│   │   ├── values-base.yaml
+│   │   ├── values-dev.yaml
+│   │   └── values-prod.yaml
 │   └── vault
 │       ├── vault-prod-values.yaml
 │       └── vault-secretstore.yaml
@@ -31848,12 +31861,14 @@
 │           ├── product-service.yaml
 │           └── shoppay.yaml
 ├── Linting
+├── net-debug.yaml
 ├── networkpolicies-all.yaml
 ├── package-lock.json
 ├── project_code.tar.gz
 ├── project_code.txt
 ├── README.md
 ├── README.old.md
+├── rendered.yaml
 ├── reports
 │   └── trivy
 │       ├── contact-service-v2.json
@@ -31903,4 +31918,4 @@
 │   └── verify-production.sh
 └── tree.txt
 
-2809 directories, 29095 files
+2814 directories, 29105 files

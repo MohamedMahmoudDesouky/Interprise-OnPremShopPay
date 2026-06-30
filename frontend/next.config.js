@@ -5,7 +5,7 @@ const nextConfig = {
   async rewrites() {
     const apiTarget =
       process.env.INTERNAL_API_BASE_URL ||
-      "http://kong-gateway-proxy.shoppay-gateway.svc.cluster.local";
+      "http://kong-kong-proxy.shoppay-gateway.svc.cluster.local";
 
     return [
       {

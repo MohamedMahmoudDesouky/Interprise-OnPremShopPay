@@ -32,14 +32,32 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
       ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
           port: 53
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: contact-allow-egress-response
+  namespace: {{ .Values.namespaces.contact }}
+  labels:
+    app.kubernetes.io/name: contact-allow-egress-response
+    app.kubernetes.io/part-of: shoppay
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.contactService.name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -63,18 +81,10 @@ spec:
               kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
           podSelector:
             matchLabels:
-              app.kubernetes.io/name: gateway
+              app.kubernetes.io/name: kong
       ports:
         - protocol: TCP
           port: {{ .Values.contactService.service.targetPort }}
-    - from:
-        - namespaceSelector: {} # ﺃﻭ ﺡﺩﺩ namespace monitoring ﺇﺫﺍ ﻚﻨﺗ ﺖﻋﺮﻔﻫ
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
-      ports:
-        - protocol: TCP
-          port: 4005 # ﻎﻳّﺭ ﻩﺫﺍ ﺎﻟﺮﻘﻣ ﺢﺴﺑ ﺎﻠﺧﺪﻣﺓ (4002 ﻞﻠـ order, 4003 ﻞﻠـ payment, 4004 ﻞﻠـ contact)
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -123,13 +133,5 @@ spec:
       ports:
         - protocol: TCP
           port: 5432
-    - from:
-        - namespaceSelector: {} # ﺃﻭ ﺡﺩﺩ namespace monitoring ﺇﺫﺍ ﻚﻨﺗ ﺖﻋﺮﻔﻫ
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
-      ports:
-        - protocol: TCP
-          port: 4005 # ﻎﻳّﺭ ﻩﺫﺍ ﺎﻟﺮﻘﻣ ﺢﺴﺑ ﺎﻠﺧﺪﻣﺓ (4002 ﻞﻠـ order, 4003 ﻞﻠـ payment, 4004 ﻞﻠـ contact)
 
 {{- end }}

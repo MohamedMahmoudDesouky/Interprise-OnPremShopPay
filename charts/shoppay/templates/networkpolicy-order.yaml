@@ -5,9 +5,6 @@ kind: NetworkPolicy
 metadata:
   name: order-default-deny
   namespace: {{ .Values.namespaces.order }}
-  labels:
-    app.kubernetes.io/name: order-default-deny
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector: {}
   policyTypes:
@@ -15,14 +12,12 @@ spec:
     - Egress
 
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: order-allow-dns-egress
   namespace: {{ .Values.namespaces.order }}
-  labels:
-    app.kubernetes.io/name: order-allow-dns-egress
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector: {}
   policyTypes:
@@ -32,9 +27,6 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: kube-system
-          podSelector:
-            matchLabels:
-              k8s-app: kube-dns
       ports:
         - protocol: UDP
           port: 53
@@ -42,14 +34,12 @@ spec:
           port: 53
 
 ---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: order-service-allow-ingress-from-gateway
   namespace: {{ .Values.namespaces.order }}
-  labels:
-    app.kubernetes.io/name: order-service-allow-ingress-from-gateway
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
@@ -61,30 +51,36 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: gateway
       ports:
         - protocol: TCP
           port: {{ .Values.orderService.service.targetPort }}
-    - from:
-        - namespaceSelector: {} # ﺃﻭ ﺡﺩﺩ namespace monitoring ﺇﺫﺍ ﻚﻨﺗ ﺖﻋﺮﻔﻫ
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
-      ports:
-        - protocol: TCP
-          port: 4005 # ﻎﻳّﺭ ﻩﺫﺍ ﺎﻟﺮﻘﻣ ﺢﺴﺑ ﺎﻠﺧﺪﻣﺓ (4002 ﻞﻠـ order, 4003 ﻞﻠـ payment, 4004 ﻞﻠـ contact)
 
 ---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: order-allow-egress-response
+  namespace: {{ .Values.namespaces.order }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.orderService.name }}
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.namespaces.gateway }}
+
+---
+
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: order-service-allow-egress-to-order-db
   namespace: {{ .Values.namespaces.order }}
-  labels:
-    app.kubernetes.io/name: order-service-allow-egress-to-order-db
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
@@ -101,46 +97,12 @@ spec:
           port: 5432
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: order-db-allow-ingress-from-order-service
-  namespace: {{ .Values.namespaces.order }}
-  labels:
-    app.kubernetes.io/name: order-db-allow-ingress-from-order-service
-    app.kubernetes.io/part-of: shoppay
-spec:
-  podSelector:
-    matchLabels:
-      app.kubernetes.io/name: order-postgresql
-  policyTypes:
-    - Ingress
-  ingress:
-    - from:
-        - podSelector:
-            matchLabels:
-              app.kubernetes.io/name: {{ .Values.orderService.name }}
-      ports:
-        - protocol: TCP
-          port: 5432
-    - from:
-        - namespaceSelector: {} # ﺃﻭ ﺡﺩﺩ namespace monitoring ﺇﺫﺍ ﻚﻨﺗ ﺖﻋﺮﻔﻫ
-          podSelector:
-            matchLabels:
-              app.kubernetes.io/name: prometheus
-      ports:
-        - protocol: TCP
-          port: 4005 # ﻎﻳّﺭ ﻩﺫﺍ ﺎﻟﺮﻘﻣ ﺢﺴﺑ ﺎﻠﺧﺪﻣﺓ (4002 ﻞﻠـ order, 4003 ﻞﻠـ payment, 4004 ﻞﻠـ contact)
 
----
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: order-service-allow-egress-to-payment-service
   namespace: {{ .Values.namespaces.order }}
-  labels:
-    app.kubernetes.io/name: order-service-allow-egress-to-payment-service
-    app.kubernetes.io/part-of: shoppay
 spec:
   podSelector:
     matchLabels:
@@ -158,5 +120,27 @@ spec:
       ports:
         - protocol: TCP
           port: {{ .Values.paymentService.service.targetPort }}
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: order-db-allow-ingress
+  namespace: {{ .Values.namespaces.order }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: order-postgresql
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ .Values.orderService.name }}
+      ports:
+        - protocol: TCP
+          port: 5432
 
 {{- end }}
