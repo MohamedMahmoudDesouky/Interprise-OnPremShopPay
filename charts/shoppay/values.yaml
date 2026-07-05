@@ -248,7 +248,45 @@ productService:
       cpu: 500m
       memory: 512Mi
 
+  hpa:
+    enabled: true
 
+    minReplicas: 2
+    maxReplicas: 10
+
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 0
+
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+
+        selectPolicy: Max
+
+      scaleDown:
+        stabilizationWindowSeconds: 300
+
+        policies:
+          - type: Percent
+            value: 10
+            periodSeconds: 60
+
+        selectPolicy: Max
+
+    metrics:
+      cpu:
+        enabled: true
+        averageUtilization: 70
+
+      memory:
+        enabled: true
+        averageUtilization: 75
 
 contactService:
   enabled: true
@@ -282,6 +320,47 @@ contactService:
     limits:
       cpu: 500m
       memory: 512Mi
+  
+  hpa:
+    enabled: true
+
+    minReplicas: 2
+    maxReplicas: 10
+
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 0
+
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+
+        selectPolicy: Max
+
+      scaleDown:
+        stabilizationWindowSeconds: 300
+
+        policies:
+          - type: Percent
+            value: 10
+            periodSeconds: 60
+
+        selectPolicy: Max
+
+    metrics:
+      cpu:
+        enabled: true
+        averageUtilization: 70
+
+      memory:
+        enabled: true
+        averageUtilization: 75
+
 
 paymentService:
   enabled: true
@@ -315,6 +394,46 @@ paymentService:
     limits:
       cpu: 500m
       memory: 512Mi
+
+  hpa:
+    enabled: true
+
+    minReplicas: 2
+    maxReplicas: 10
+
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 0
+
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+
+        selectPolicy: Max
+
+      scaleDown:
+        stabilizationWindowSeconds: 300
+
+        policies:
+          - type: Percent
+            value: 10
+            periodSeconds: 60
+
+        selectPolicy: Max
+
+    metrics:
+      cpu:
+        enabled: true
+        averageUtilization: 70
+
+      memory:
+        enabled: true
+        averageUtilization: 80
 
 orderService:
   enabled: true
@@ -350,6 +469,47 @@ orderService:
       cpu: 500m
       memory: 512Mi
 
+  hpa:
+    enabled: true
+
+    minReplicas: 2
+    maxReplicas: 10
+
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 0
+
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+
+        selectPolicy: Max
+
+      scaleDown:
+        stabilizationWindowSeconds: 300
+
+        policies:
+          - type: Percent
+            value: 10
+            periodSeconds: 60
+
+        selectPolicy: Max
+
+    metrics:
+      cpu:
+        enabled: true
+        averageUtilization: 70
+
+      memory:
+        enabled: true
+        averageUtilization: 75
+
+
 ingress:
   enabled: true
   className: kong
@@ -381,6 +541,46 @@ frontend:
     limits:
       cpu: 1000m
       memory: 1Gi
+
+  hpa:
+    enabled: true
+
+    minReplicas: 2
+    maxReplicas: 10
+
+    behavior:
+      scaleUp:
+        stabilizationWindowSeconds: 0
+
+        policies:
+          - type: Percent
+            value: 100
+            periodSeconds: 15
+
+          - type: Pods
+            value: 2
+            periodSeconds: 15
+
+        selectPolicy: Max
+
+      scaleDown:
+        stabilizationWindowSeconds: 300
+
+        policies:
+          - type: Percent
+            value: 10
+            periodSeconds: 60
+
+        selectPolicy: Max
+
+    metrics:
+      cpu:
+        enabled: true
+        averageUtilization: 70
+
+      memory:
+        enabled: true
+        averageUtilization: 75
 
 networkPolicies:
   enabled: true

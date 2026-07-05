@@ -1,0 +1,52 @@
+{{- $services := dict
+  "frontend" .Values.frontend
+  "productService" .Values.productService
+  "orderService" .Values.orderService
+  "paymentService" .Values.paymentService
+  "contactService" .Values.contactService
+}}
+
+{{- range $name, $service := $services }}
+
+{{- if and $service.enabled $service.hpa.enabled }}
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $service.name }}
+  namespace: {{ $service.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $service.name }}
+    app.kubernetes.io/part-of: shoppay
+
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $service.name }}
+
+  minReplicas: {{ $service.hpa.minReplicas }}
+  maxReplicas: {{ $service.hpa.maxReplicas }}
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $service.hpa.metrics.cpu.averageUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $service.hpa.metrics.memory.averageUtilization }}
+  behavior:
+{{ toYaml $service.hpa.behavior | indent 4 }}
+
+---
+{{- end }}
+
+{{- end }}
+
+
