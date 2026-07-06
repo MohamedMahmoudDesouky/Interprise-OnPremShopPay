@@ -1,0 +1,30 @@
+{{- if .Values.argocd.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: argocd
+  namespace: {{ .Values.argocd.namespace }}
+
+  annotations:
+{{- range $key, $value := .Values.argocd.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+{{- end }}
+
+spec:
+  ingressClassName: {{ .Values.argocd.ingress.className }}
+
+  rules:
+    - host: {{ .Values.argocd.ingress.host }}
+
+      http:
+        paths:
+          - path: {{ .Values.argocd.ingress.path }}
+            pathType: {{ .Values.argocd.ingress.pathType }}
+
+            backend:
+              service:
+                name: {{ .Values.argocd.service.name }}
+                port:
+                  number: {{ .Values.argocd.service.port }}
+{{- end }}

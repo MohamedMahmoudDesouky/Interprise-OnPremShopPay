@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd
+  namespace: argocd
+
+  annotations:
+    konghq.com/protocols: "https,http"
+
+spec:
+  ingressClassName: kong
+
+  rules:
+  - host: argocd.local
+
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+
+        backend:
+          service:
+            name: argocd-server
+            port:
+              number: 80

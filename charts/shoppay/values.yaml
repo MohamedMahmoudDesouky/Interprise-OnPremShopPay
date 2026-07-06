@@ -601,6 +601,29 @@ monitoring: # هذا يتطابق مع alias الذي وضعناه في Chart.ya
       type: NodePort # أو ClusterIP مع Ingress إذا كان لديك Ingress Controller
       nodePort: 30300 # منفذ ثابت للوصول لـ Grafana من الخار
 
+argocd:
+  enabled: true
+
+  namespace: argocd
+
+  service:
+    name: argocd-server
+    port: 80
+
+  ingress:
+    enabled: true
+
+    className: kong
+
+    host: argocd.local
+
+    path: /
+
+    pathType: Prefix
+
+    annotations:
+      konghq.com/protocols: "http,https"
+      ingress.kubernetes.io/service-upstream: "true"
 
 vault:
     enabled: true
