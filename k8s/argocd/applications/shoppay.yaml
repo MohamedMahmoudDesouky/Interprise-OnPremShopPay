@@ -2,20 +2,29 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 
 metadata:
-  name: shoppay
+  name: interprise-onpremshoppay
   namespace: argocd
 
 spec:
   project: default
 
   source:
-    repoURL: https://gitlab.com/selcon-group/interpriseonpremshoppay.git
-    targetRevision: dev
+    repoURL: https://github.com/MohamedMahmoudDesouky/Interprise-OnPremShopPay.git
+    targetRevision: HEAD
     path: charts/shoppay
+    helm:
+      releaseName: shoppay
 
   destination:
     server: https://kubernetes.default.svc
     namespace: shoppay
+
+  ignoreDifferences:
+    # HPA يتحكم في عدد الـ replicas — نتجاهل الفرق لتجنب OutOfSync
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
 
   syncPolicy:
     automated:
@@ -24,3 +33,5 @@ spec:
 
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true  # مطلوب للـ CRDs الكبيرة مثل Prometheus
+
