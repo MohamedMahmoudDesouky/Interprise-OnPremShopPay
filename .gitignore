@@ -41,3 +41,4 @@ reports/trivy/**/*.json
 # Docker
 .docker/
 README.old.md
+.trivyignore
