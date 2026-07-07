@@ -7,6 +7,9 @@
 
 ## Table of Contents
 1. **Introduction and Architectural Blueprint**
+   - 1.1 Architectural Pillars & Zero-Trust Model
+   - 1.2 Kubernetes Namespace Isolation Strategy
+   - 1.3 Enterprise System Architecture Diagram
 2. **Detailed File and Folder Layout / Directory Tree Analysis**
 3. **Core Services & Microservices Architecture**
    - 3.1 Next.js Frontend Application
@@ -20,10 +23,11 @@
 6. **API Gateway & Routing Layer (Kong Ingress Controller)**
 7. **GitOps & Continuous Deployment (Helm + ArgoCD)**
 8. **Monitoring, Observability & Alerting**
-9. **Operational Troubleshooting & Incident Log Deep Dives**
-   - 9.1 Case Study A: Next.js Cache Write Errors on Read-Only Filesystems
-   - 9.2 Case Study B: ArgoCD Gateway Routing Hang (Namespace Routing Limits)
-   - 9.3 Case Study C: Vault Agent Injection Connection Failures
+9. **Horizontal Pod Autoscaling (HPA)**
+10. **Operational Troubleshooting & Incident Log Deep Dives**
+    - 10.1 Case Study A: Next.js Cache Write Errors on Read-Only Filesystems
+    - 10.2 Case Study B: ArgoCD Gateway Routing Hang (Namespace Routing Limits)
+    - 10.3 Case Study C: Vault Agent Injection Connection Failures
 
 ---
 
@@ -31,36 +35,155 @@
 
 The **Interprise-OnPremShopPay** is an enterprise-grade, microservices-based Point of Sale (POS) and retail management application deployed on an on-premises Kubernetes cluster. The architecture is built around the **Zero-Trust Security Model**, meaning that no microservice is trusted by default, all network traffic is blocked unless explicitly whitelisted, and all secrets are dynamically injected in memory rather than being stored on disk or in source code repositories.
 
-### Architectural Pillars
-- **Database-per-Service Isolation:** To prevent data coupling and enforce security boundaries, each microservice possesses its own isolated PostgreSQL database. Cross-database queries are strictly prohibited; microservices communicate only via API calls routed through the API Gateway.
-- **Zero-Trust Microsegmentation:** Network communication is restricted by default. Workloads can only talk to verified destinations explicitly defined in Calico NetworkPolicies.
-- **Externalized Secrets Management:** Sensitive credentials, certificates, and API tokens are stored securely in HashiCorp Vault. Workloads dynamically consume secrets through the Vault Agent Injector using file-based volume mounts, ensuring no secret is ever committed to source control or exposed in environment variables.
-- **GitOps-driven Infrastructure:** The cluster state is continuously reconciled with the Git repository using Helm and ArgoCD, ensuring infrastructure-as-code consistency.
+### 1.1 Architectural Pillars & Zero-Trust Model
+* **Database-per-Service Isolation:** To prevent data coupling and enforce security boundaries, each microservice possesses its own isolated PostgreSQL database. Cross-database queries are strictly prohibited; microservices communicate only via API calls routed through the API Gateway.
+* **Zero-Trust Microsegmentation:** Network communication is restricted by default. Workloads can only talk to verified destinations explicitly defined in Calico NetworkPolicies.
+* **Externalized Secrets Management:** Sensitive credentials, certificates, and API tokens are stored securely in HashiCorp Vault. Workloads dynamically consume secrets through the Vault Agent Injector using file-based volume mounts, ensuring no secret is ever committed to source control or exposed in environment variables.
+* **GitOps-driven Infrastructure:** The cluster state is continuously reconciled with the Git repository using Helm and ArgoCD, ensuring infrastructure-as-code consistency.
 
-```
-+---------------------------------------------------------------------------------+
-|                                  USER BROWSER                                   |
-+---------------------------------------------------------------------------------+
-                                         |
-                                         | HTTP/HTTPS (Port 30080)
-                                         v
-+---------------------------------------------------------------------------------+
-|                            KONG API GATEWAY PROXY                               |
-|                         (Namespace: shoppay-gateway)                            |
-+---------------------------------------------------------------------------------+
-        |                        |                        |                        |
-        | /api/products          | /api/orders            | /api/payments          | /api/contact
-        v                        v                        v                        v
-+------------------+     +------------------+     +------------------+     +------------------+
-| PRODUCT-SERVICE  |     |  ORDER-SERVICE   |     | PAYMENT-SERVICE  |     | CONTACT-SERVICE  |
-| (Port 4001)      |     |  (Port 4002)     |     | (Port 4003)      |     | (Port 4004)      |
-+------------------+     +------------------+     +------------------+     +------------------+
-        |                        |                        |                        |
-        v                        v                        v                        v
-+------------------+     +------------------+     +------------------+     +------------------+
-| PRODUCT-POSTGRES |     |  ORDER-POSTGRES  |     | PAYMENT-POSTGRES |     | CONTACT-POSTGRES |
-| (Port 5432)      |     |  (Port 5432)     |     | (Port 5432)      |     | (Port 5432)      |
-+------------------+     +------------------+     +------------------+     +------------------+
+### 1.2 Kubernetes Namespace Isolation Strategy
+To enforce strict boundary controls and operational isolation, the cluster is segmented into nine distinct Kubernetes namespaces. Workloads are placed in these namespaces according to their security classification, data sensitivity, and operational role:
+
+| Namespace | Key Resources | Operational Role | Rationale for Isolation |
+| :--- | :--- | :--- | :--- |
+| **`shoppay-frontend`** | Next.js Frontend Deployment, frontend Service, HPA | Presentation layer | Isolates the public-facing UI. By preventing direct access to backend microservices and databases, any frontend compromise is contained and cannot perform lateral traversal to database storage. |
+| **`shoppay-gateway`** | Kong Ingress Controller, Kong Admin & Proxy Pods, Ingress resources | API Gateway & Routing | Entry point for all external client traffic. Handles SSL termination, routing rules, rate-limiting, and web application firewall properties. Isolating the gateway ensures traffic routing control is decoupled from business logic. |
+| **`shoppay-product`** | Product Service, PostgreSQL StatefulSet, service accounts, secrets-store | Product Catalog | Houses product metadata. Database isolation ensures order/billing services cannot directly modify product inventories or prices except through authorized API contracts. |
+| **`shoppay-order`** | Order Service, PostgreSQL StatefulSet, service accounts | Transaction Processing | Manages customer orders and checkout sequences. Separated from payment processing to limit exposure of transaction logs and isolate order states. |
+| **`shoppay-payment`** | Payment Service, PostgreSQL StatefulSet, service accounts | Billing & Payment Audits | Highly secure zone processing financial transactions. Isolated to limit the PCI-DSS compliance auditing scope strictly to this namespace, shielding payment details from external systems. |
+| **`shoppay-contact`** | Contact Service, PostgreSQL StatefulSet, service accounts | Support & Contact Forms | Low-privilege public inputs. Segregating contact form processing prevents form vulnerabilities (such as SQL injections or spam loops) from impacting transactional operations. |
+| **`shoppay-vault`** | HashiCorp Vault Server, Vault Agent Injector | Secrets Management | The central authority for credentials, keys, and tokens. Restricts access exclusively to authorized ServiceAccounts requesting credentials, ensuring zero persistent secrets inside application containers. |
+| **`shoppay`** | Kube-Prometheus-Stack (Prometheus, Grafana, Alertmanager, Kube-State-Metrics) | Monitoring & Observability | Observability subsystem. Decouples monitoring resources and permissions from application workloads, protecting metric scrape endpoints and Grafana dashboards. |
+| **`argocd`** | ArgoCD Application Controller, Repo Server, Dex, Redis | GitOps CD Operator | System controller with cluster-admin access. Separated to ensure application code cannot modify CD control loops, safeguarding deployment integrity. |
+
+### 1.3 Enterprise System Architecture Diagram
+The diagram below provides a comprehensive map of the system components, namespace boundaries, resources, network policies, databases, monitoring metrics scraping, dynamic secret injection pipelines, and user traffic routing:
+
+```mermaid
+graph TD
+    %% Namespaces (Subgraphs)
+    subgraph Client ["Client Layer / External Network"]
+        Browser["User Browser"]
+    end
+
+    subgraph shoppay-gateway ["Namespace: shoppay-gateway"]
+        KongProxy["Kong API Gateway Proxy<br>(Service: NodePort 30080/TCP)"]
+        KongController["Kong Ingress Controller"]
+        NP_Gateway["NP: gateway-allow-egress-to-services"]
+    end
+
+    subgraph shoppay-frontend ["Namespace: shoppay-frontend"]
+        FrontendDeployment["Frontend Pods (Next.js)<br>(Min: 2 / Max: 10 Replicas)"]
+        FrontendService["Service: frontend (NodePort 30000)"]
+        NP_Frontend["NP: frontend-allow-egress-to-gateway"]
+    end
+
+    subgraph shoppay-product ["Namespace: shoppay-product"]
+        ProductDeployment["Product Service Pods<br>(Min: 2 / Max: 10 Replicas)"]
+        ProductService["Service: product-service (ClusterIP 4001)"]
+        ProductDB["Product DB (PostgreSQL StatefulSet)<br>(shoppay-product-postgresql-0)"]
+        ProductDBService["Service: product-postgresql (Port 5432)"]
+        NP_Product["NP: product-allow-ingress-from-kong"]
+    end
+
+    subgraph shoppay-order ["Namespace: shoppay-order"]
+        OrderDeployment["Order Service Pods<br>(Min: 2 / Max: 10 Replicas)"]
+        OrderService["Service: order-service (ClusterIP 4002)"]
+        OrderDB["Order DB (PostgreSQL StatefulSet)<br>(shoppay-order-postgresql-0)"]
+        OrderDBService["Service: order-postgresql (Port 5432)"]
+        NP_Order["NP: order-allow-ingress-from-kong"]
+    end
+
+    subgraph shoppay-payment ["Namespace: shoppay-payment"]
+        PaymentDeployment["Payment Service Pods<br>(Min: 2 / Max: 10 Replicas)"]
+        PaymentService["Service: payment-service (ClusterIP 4003)"]
+        PaymentDB["Payment DB (PostgreSQL StatefulSet)<br>(shoppay-payment-postgresql-0)"]
+        PaymentDBService["Service: payment-postgresql (Port 5432)"]
+        NP_Payment["NP: payment-allow-ingress-from-kong"]
+    end
+
+    subgraph shoppay-contact ["Namespace: shoppay-contact"]
+        ContactDeployment["Contact Service Pods<br>(Min: 2 / Max: 10 Replicas)"]
+        ContactService["Service: contact-service (ClusterIP 4004)"]
+        ContactDB["Contact DB (PostgreSQL StatefulSet)<br>(shoppay-contact-postgresql-0)"]
+        ContactDBService["Service: contact-postgresql (Port 5432)"]
+        NP_Contact["NP: contact-allow-ingress-from-kong"]
+    end
+
+    subgraph shoppay-vault ["Namespace: shoppay-vault"]
+        VaultStatefulSet["Vault StatefulSet (vault-0)<br>(Active / Port 8200)"]
+        VaultInjector["Vault Agent Injector"]
+        VaultService["Service: vault (ClusterIP 8200)"]
+    end
+
+    subgraph shoppay-monitoring ["Namespace: shoppay"]
+        Prometheus["Prometheus Server<br>(Port 9090)"]
+        Grafana["Grafana UI<br>(NodePort 30300)"]
+        AlertManager["Alertmanager<br>(Port 9093)"]
+        NodeExporter["Node Exporter"]
+        KubeStateMetrics["Kube State Metrics"]
+    end
+
+    subgraph argocd ["Namespace: argocd"]
+        ArgoCDServer["ArgoCD Server UI<br>(Host: argocd.local)"]
+        ArgoCDRepo["ArgoCD Repo Server"]
+        ArgoCDController["ArgoCD Controller"]
+    end
+
+    %% Routing / Traffic flows
+    Browser -->|Port 30000| FrontendService
+    FrontendService --> FrontendDeployment
+    FrontendDeployment -->|API Rewrite /api/*| KongProxy
+
+    Browser -->|Port 30080| KongProxy
+
+    KongProxy -->|Egress Whitelisted by NP_Gateway| ProductService
+    KongProxy -->|Egress Whitelisted by NP_Gateway| OrderService
+    KongProxy -->|Egress Whitelisted by NP_Gateway| PaymentService
+    KongProxy -->|Egress Whitelisted by NP_Gateway| ContactService
+
+    ProductService --> ProductDeployment
+    OrderService --> OrderDeployment
+    PaymentService --> PaymentDeployment
+    ContactService --> ContactDeployment
+
+    %% DB Connections
+    ProductDeployment -->|Port 5432 (NP Whitelisted)| ProductDBService
+    ProductDBService --> ProductDB
+
+    OrderDeployment -->|Port 5432 (NP Whitelisted)| OrderDBService
+    OrderDBService --> OrderDB
+    OrderDeployment -->|Port 4003 (NP Whitelisted)| PaymentService
+
+    PaymentDeployment -->|Port 5432 (NP Whitelisted)| PaymentDBService
+    PaymentDBService --> PaymentDB
+
+    ContactDeployment -->|Port 5432 (NP Whitelisted)| ContactDBService
+    ContactDBService --> ContactDB
+
+    %% Secret Management (Vault Injection)
+    ProductDeployment -.->|Template Ingress/Egress Port 8200| VaultService
+    OrderDeployment -.->|Template Ingress/Egress Port 8200| VaultService
+    PaymentDeployment -.->|Template Ingress/Egress Port 8200| VaultService
+    ContactDeployment -.->|Template Ingress/Egress Port 8200| VaultService
+
+    %% Monitoring
+    Prometheus -->|Scrape metrics via ServiceMonitor| ProductDeployment
+    Prometheus -->|Scrape metrics via ServiceMonitor| OrderDeployment
+    Prometheus -->|Scrape metrics via ServiceMonitor| PaymentDeployment
+    Prometheus -->|Scrape metrics via ServiceMonitor| ContactDeployment
+    Prometheus -->|Scrape metrics via ServiceMonitor| FrontendDeployment
+    Prometheus -->|Scrape metrics| NodeExporter
+    Prometheus -->|Scrape metrics| KubeStateMetrics
+    Grafana -->|Query Metrics| Prometheus
+    Prometheus -->|Send Alerts| AlertManager
+
+    %% GitOps Reconcile
+    ArgoCDController -.->|App State Sync| FrontendDeployment
+    ArgoCDController -.->|App State Sync| ProductDeployment
+    ArgoCDController -.->|App State Sync| OrderDeployment
+    ArgoCDController -.->|App State Sync| PaymentDeployment
+    ArgoCDController -.->|App State Sync| ContactDeployment
 ```
 
 ---
@@ -572,9 +695,75 @@ We track cluster health using a Prometheus/Grafana integration:
 
 ---
 
-## 9. Operational Troubleshooting & Incident Log Deep Dives
+## 9. Horizontal Pod Autoscaling (HPA)
 
-### 9.1 Case Study A: Next.js Cache Write Errors on Read-Only Filesystems
+To ensure high availability and responsiveness under fluctuating user loads, the **Interprise-OnPremShopPay** application integrates dynamic autoscaling via the Kubernetes **HorizontalPodAutoscaler (HPA)** (`autoscaling/v2`). 
+
+Each frontend and backend microservice is configured with HPA templates that automatically adjust the number of replica pods based on observed resource utilization (CPU and Memory).
+
+### 9.1 Autoscaling Configuration & Thresholds
+The HPA specifies target utilization percentages based on the resource requests of the pods. The threshold and replica specifications for each service are detailed below:
+
+| Microservice | Namespace | Min Replicas | Max Replicas | CPU Target | Memory Target |
+| :--- | :--- | :---: | :---: | :---: | :---: |
+| **frontend** | `shoppay-frontend` | 2 | 10 | 70% | 75% |
+| **product-service** | `shoppay-product` | 2 | 10 | 70% | 75% |
+| **order-service** | `shoppay-order` | 2 | 10 | 70% | 75% |
+| **payment-service** | `shoppay-payment` | 2 | 10 | 70% | 80% |
+| **contact-service** | `shoppay-contact` | 2 | 10 | 70% | 75% |
+
+### 9.2 Helm Template Architecture (`hpa.yaml`)
+A single, modular `hpa.yaml` template dynamically iterates through the active services specified in the values file to declare HPA manifests:
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $service.name }}
+  namespace: {{ $service.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $service.name }}
+  minReplicas: {{ $service.hpa.minReplicas }}
+  maxReplicas: {{ $service.hpa.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $service.hpa.metrics.cpu.averageUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $service.hpa.metrics.memory.averageUtilization }}
+```
+
+### 9.3 Custom Scaling Behavior & Policies
+To optimize reactivity and prevent cluster thrashing, custom scale-up and scale-down behaviors are defined for all services:
+
+#### A. Scale-Up Behavior
+* **Stabilization Window:** 0 seconds (scale up immediately when a spike is detected to preserve application responsiveness).
+* **Scaling Policies:**
+  * **Percent:** Increase replica capacity by **100%** of current replicas every 15 seconds.
+  * **Pods:** Add **2** pods every 15 seconds.
+* **Selection Policy:** `Max` (applies the policy that yields the highest number of pods to handle rapid spikes in traffic).
+
+#### B. Scale-Down Behavior
+* **Stabilization Window:** 300 seconds (5 minutes cooldown period where the system evaluates historical metrics before scaling down). This prevents the "flapping" phenomenon (frequent scale-up/scale-down cycles).
+* **Scaling Policies:**
+  * **Percent:** Decrease replicas by a maximum of **10%** every 60 seconds.
+* **Selection Policy:** `Max`.
+
+---
+
+## 10. Operational Troubleshooting & Incident Log Deep Dives
+
+### 10.1 Case Study A: Next.js Cache Write Errors on Read-Only Filesystems
 * **Symptom:** Next.js frontend pods failed Kubernetes liveness probes and crashed shortly after launch, throwing write permissions errors on `/app/.next/cache`.
 * **Root Cause:** Enforcing `readOnlyRootFilesystem: true` blocks Next.js from writing dynamic render cache assets to its default build folders during execution.
 * **Resolution:** An ephemeral memory-backed volume was mounted at `/app/.next/cache` in the frontend Helm template to allow temporary writes to RAM:
@@ -591,14 +780,14 @@ volumes:
 
 ---
 
-### 9.2 Case Study B: ArgoCD Ingress Connectivity Hang
+### 10.2 Case Study B: ArgoCD Ingress Connectivity Hang
 * **Symptom:** Exposing ArgoCD via Kong proxy resulted in connection attempts hanging indefinitely without returning data or HTTP status errors.
 * **Root Cause Investigation:** We executed network calls directly within the Kong pod namespace. A TCP query directly to the ArgoCD server pod IP (`10.244.102.182:8080`) failed with `No route to host (errno 113)`. Calico processes routing using host-level routing tables, meaning direct container-to-container IP connections across namespaces are restricted by the Calico host interface routing rules in this environment.
 * **Resolution:** We mapped routing through the ClusterIP layer instead of direct pod IP routing. By applying the `ingress.kubernetes.io/service-upstream: "true"` annotation to the `argocd-server` Service, KIC configured the upstream target as the service DNS (`argocd-server.argocd.svc:80`). This allowed requests to target the ClusterIP, which is intercepted and successfully DNAT'd by the host's `kube-proxy` rules, resolving the routing issue and returning **200 OK**.
 
 ---
 
-### 9.3 Case Study C: Vault Agent Injection Connection Failures
+### 10.3 Case Study C: Vault Agent Injection Connection Failures
 * **Symptom:** Backend microservices hung at startup during the init-container stage, timing out with connection error logs targeting `http://vault.shoppay-vault.svc:8200`.
 * **Root Cause:** Calico NetworkPolicies on the microservice namespaces had egress policies that allowed connection to local database resources but did not include permission rules to reach the `shoppay-vault` namespace.
 * **Resolution:** We updated the `egress` block in the microservice NetworkPolicies to explicitly whitelist TCP port `8200` traffic targeting the `shoppay-vault` namespace:
