@@ -1,7 +1,6 @@
-# Comprehensive Enterprise System Architecture & Deployment Report
-## Interprise On-Premises ShopPay POS System
-**Classification:** Internal DevSecOps Production Report  
-**Author:** Senior Systems & Kubernetes Platform Architect  
+## Interprise On-Premises ShopPay 
+**Classification:** On-prem DevSecOps Production Project  
+**Author:** By Mohamed Mahmoud Desouky DevSecOps Engineer
 **Status:** Approved & Verified  
 
 ---
