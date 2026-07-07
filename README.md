@@ -1,7 +1,7 @@
 ## Interprise On-Premises ShopPay 
 **Classification:** On-prem DevSecOps Production Project  
 **Author:** By Mohamed Mahmoud Desouky DevSecOps Engineer
-**Status:** Approved & Verified  
+**Status:** Approved & Verified   
 
 ---
 
@@ -148,17 +148,17 @@ graph TD
     ContactService --> ContactDeployment
 
     %% DB Connections
-    ProductDeployment -->|Port 5432 (NP Whitelisted)| ProductDBService
+    ProductDeployment -->|Port 5432 - NP Whitelisted| ProductDBService
     ProductDBService --> ProductDB
 
-    OrderDeployment -->|Port 5432 (NP Whitelisted)| OrderDBService
+    OrderDeployment -->|Port 5432 - NP Whitelisted| OrderDBService
     OrderDBService --> OrderDB
-    OrderDeployment -->|Port 4003 (NP Whitelisted)| PaymentService
+    OrderDeployment -->|Port 4003 - NP Whitelisted| PaymentService
 
-    PaymentDeployment -->|Port 5432 (NP Whitelisted)| PaymentDBService
+    PaymentDeployment -->|Port 5432 - NP Whitelisted| PaymentDBService
     PaymentDBService --> PaymentDB
 
-    ContactDeployment -->|Port 5432 (NP Whitelisted)| ContactDBService
+    ContactDeployment -->|Port 5432 - NP Whitelisted| ContactDBService
     ContactDBService --> ContactDB
 
     %% Secret Management (Vault Injection)
