@@ -28,6 +28,9 @@
     - 10.1 Case Study A: Next.js Cache Write Errors on Read-Only Filesystems
     - 10.2 Case Study B: ArgoCD Gateway Routing Hang (Namespace Routing Limits)
     - 10.3 Case Study C: Vault Agent Injection Connection Failures
+11. **Project Orchestration and Deployment Playbook (Running from Scratch)**
+    - 11.1 Step-by-Step Deployment from Scratch
+    - 11.2 Complete Command Reference (Used & Operational)
 
 ---
 
@@ -806,3 +809,327 @@ egress:
         port: 8200
 ```
 This enabled the Vault Agent to successfully authenticate, pull secrets, and mount them for the main application, resolving the startup connection hang.
+
+---
+
+## 11. Project Orchestration and Deployment Playbook (Running from Scratch)
+
+This section details how to bootstrap, deploy, configure, and monitor the entire **Interprise-OnPremShopPay** application from scratch on a clean Kubernetes cluster. It also contains the complete operational command reference used throughout the project lifecycle.
+
+### 11.1 Step-by-Step Deployment from Scratch
+
+#### Step 1: Pre-requisites & Cluster Setup
+Ensure you have a running Kubernetes cluster (v1.24+) with **Calico CNI** installed (crucial for NetworkPolicies enforcement) and **Helm v3** installed.
+1. Install Helm v3:
+   ```bash
+   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+   ```
+2. Verify Calico installation:
+   ```bash
+   kubectl get pods -n kube-system -l k8s-app=calico-node
+   ```
+
+#### Step 2: Build & Push Container Images (Optional)
+If you want to rebuild the custom application images instead of pulling the production-ready images (`selconyt/shoppay-*`):
+```bash
+# Build Frontend
+docker build -t selconyt/shoppay-frontend:v17 ./frontend
+# Build Product Service
+docker build -t selconyt/shoppay-product-service:v11 ./backend/services/product-service
+# Build Order Service
+docker build -t selconyt/shoppay-order-service:v7 ./backend/services/order-service
+# Build Payment Service
+docker build -t selconyt/shoppay-payment-service:v7 ./backend/services/payment-service
+# Build Contact Service
+docker build -t selconyt/shoppay-contact-service:v7 ./backend/services/contact-service
+
+# Push to your Container Registry (DockerHub / Private Registry)
+docker push selconyt/shoppay-frontend:v17
+docker push selconyt/shoppay-product-service:v11
+docker push selconyt/shoppay-order-service:v7
+docker push selconyt/shoppay-payment-service:v7
+docker push selconyt/shoppay-contact-service:v7
+```
+
+#### Step 3: Initialize Namespaces
+Although the Helm chart will deploy resources into their namespaces, we initialize them to ensure proper label application for network security boundaries:
+```bash
+kubectl create namespace shoppay-frontend
+kubectl create namespace shoppay-gateway
+kubectl create namespace shoppay-product
+kubectl create namespace shoppay-order
+kubectl create namespace shoppay-payment
+kubectl create namespace shoppay-contact
+kubectl create namespace shoppay-vault
+kubectl create namespace shoppay       # For Monitoring stack
+kubectl create namespace argocd        # For GitOps
+```
+Label namespaces to match Calico selector rules:
+```bash
+kubectl label namespace shoppay-frontend kubernetes.io/metadata.name=shoppay-frontend
+kubectl label namespace shoppay-gateway kubernetes.io/metadata.name=shoppay-gateway
+kubectl label namespace shoppay-product kubernetes.io/metadata.name=shoppay-product
+kubectl label namespace shoppay-order kubernetes.io/metadata.name=shoppay-order
+kubectl label namespace shoppay-payment kubernetes.io/metadata.name=shoppay-payment
+kubectl label namespace shoppay-contact kubernetes.io/metadata.name=shoppay-contact
+kubectl label namespace shoppay-vault kubernetes.io/metadata.name=shoppay-vault
+```
+
+#### Step 4: Deploy & Configure HashiCorp Vault
+Vault is the central authority for secret management and is run in HA mode.
+1. Add the HashiCorp repository and install Vault:
+   ```bash
+   helm repo add hashicorp https://helm.releases.hashicorp.com
+   helm repo update
+   helm upgrade --install vault hashicorp/vault \
+     --namespace shoppay-vault \
+     -f infra/vault/vault-prod-values.yaml
+   ```
+2. Initialize the Vault cluster:
+   ```bash
+   kubectl exec -n shoppay-vault vault-0 -- vault operator init > /tmp/vault-init.txt
+   ```
+3. Extract the initial Unseal Key and Root Token:
+   ```bash
+   VAULT_UNSEAL_KEY=$(grep 'Unseal Key 1:' /tmp/vault-init.txt | awk '{print $4}')
+   VAULT_ROOT_TOKEN=$(grep 'Initial Root Token:' /tmp/vault-init.txt | awk '{print $4}')
+   echo "Unseal Key: $VAULT_UNSEAL_KEY"
+   echo "Root Token: $VAULT_ROOT_TOKEN"
+   ```
+4. Unseal the 3 Vault replicas to achieve Quorum:
+   ```bash
+   kubectl exec -n shoppay-vault vault-0 -- vault operator unseal "$VAULT_UNSEAL_KEY"
+   kubectl exec -n shoppay-vault vault-1 -- vault operator unseal "$VAULT_UNSEAL_KEY"
+   kubectl exec -n shoppay-vault vault-2 -- vault operator unseal "$VAULT_UNSEAL_KEY"
+   ```
+5. Login to Vault using the Root Token:
+   ```bash
+   kubectl exec -n shoppay-vault vault-0 -- vault login "$VAULT_ROOT_TOKEN"
+   ```
+6. Enable the Key-Value (KV-v2) Secrets Engine:
+   ```bash
+   kubectl exec -n shoppay-vault vault-0 -- vault secrets enable -path=secret kv-v2
+   ```
+7. Seed the database credentials and application secrets into Vault:
+   ```bash
+   # Product Service Credentials
+   kubectl exec -n shoppay-vault vault-0 -- vault kv put secret/shoppay/product/admin ADMIN_USERNAME="admin" ADMIN_PASSWORD_HASH="\$2b\$10\$L29JzYgR/6pIasW8W03xpe5G3D4wD1z5Gsz6p8bVnU8m0Yg9q1Z2q" JWT_SECRET="super-secret-jwt-key"
+   kubectl exec -n shoppay-vault vault-0 -- vault kv put secret/shoppay/product/db-credentials username="product_user" password="ProductPassword123" postgres-password="AdminPassword123"
+
+   # Order Service Credentials
+   kubectl exec -n shoppay-vault vault-0 -- vault kv put secret/shoppay/order/db-credentials username="order_user" password="OrderPassword123" postgres-password="AdminPassword123"
+
+   # Payment Service Credentials
+   kubectl exec -n shoppay-vault vault-0 -- vault kv put secret/shoppay/payment/db-credentials username="payment_user" password="PaymentPassword123" postgres-password="AdminPassword123"
+
+   # Contact Service Credentials
+   kubectl exec -n shoppay-vault vault-0 -- vault kv put secret/shoppay/contact/db-credentials username="contact_user" password="ContactPassword123" postgres-password="AdminPassword123"
+   ```
+8. Write the Access Policy (`shoppay-policy`):
+   ```bash
+   kubectl exec -i -n shoppay-vault vault-0 -- vault policy write shoppay-policy - <<EOF
+   path "secret/data/shoppay/*" {
+     capabilities = ["read"]
+   }
+   EOF
+   ```
+9. Enable and configure Kubernetes Authentication:
+   ```bash
+   kubectl exec -n shoppay-vault vault-0 -- vault auth enable kubernetes
+
+   kubectl exec -n shoppay-vault vault-0 -- vault write auth/kubernetes/config \
+     kubernetes_host="https://kubernetes.default.svc:443"
+   ```
+10. Create Kubernetes Authentication roles mapping service accounts to the access policy:
+    ```bash
+    # Product Role
+    kubectl exec -n shoppay-vault vault-0 -- vault write auth/kubernetes/role/shoppay-product-role \
+      bound_service_account_names=product-service \
+      bound_service_account_namespaces=shoppay-product \
+      policies=shoppay-policy \
+      ttl=24h
+
+    # Order Role
+    kubectl exec -n shoppay-vault vault-0 -- vault write auth/kubernetes/role/shoppay-order-role \
+      bound_service_account_names=order-service \
+      bound_service_account_namespaces=shoppay-order \
+      policies=shoppay-policy \
+      ttl=24h
+
+    # Payment Role
+    kubectl exec -n shoppay-vault vault-0 -- vault write auth/kubernetes/role/shoppay-payment-role \
+      bound_service_account_names=payment-service \
+      bound_service_account_namespaces=shoppay-payment \
+      policies=shoppay-policy \
+      ttl=24h
+
+    # Contact Role
+    kubectl exec -n shoppay-vault vault-0 -- vault write auth/kubernetes/role/shoppay-contact-role \
+      bound_service_account_names=contact-service \
+      bound_service_account_namespaces=shoppay-contact \
+      policies=shoppay-policy \
+      ttl=24h
+    ```
+
+#### Step 5: Deploy Kong Ingress Controller
+Kong manages ingress traffic and applies microsegmentation routes.
+1. Add the Kong repository:
+   ```bash
+   helm repo add kong https://charts.konghq.com
+   helm repo update
+   ```
+2. Deploy Kong in the gateway namespace:
+   ```bash
+   cd infra/kong
+   ./install.sh
+   cd ../..
+   ```
+
+#### Step 6: Deploy Kube-Prometheus-Stack (Monitoring)
+Install Prometheus, Grafana, and metric exporters.
+1. Add the Prometheus Community repository:
+   ```bash
+   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+   helm repo update
+   ```
+2. Deploy the stack:
+   ```bash
+   helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+     --namespace shoppay \
+     --create-namespace \
+     -f helm/values-prometheus.yaml
+   ```
+
+#### Step 7: Deploy ArgoCD (GitOps)
+Set up GitOps for continuous deployment and state synchronization.
+1. Deploy the ArgoCD controller:
+   ```bash
+   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+   ```
+2. Apply the Ingress resource for the ArgoCD server:
+   ```bash
+   kubectl apply -f k8s/argocd/argocd-ingress.yaml
+   ```
+3. Apply the GitOps application manifests to sync the application state:
+   ```bash
+   kubectl apply -f k8s/argocd/applications/shoppay.yaml
+   ```
+
+#### Step 8: Deploy the Shoppay Microservices Stack
+Now, deploy the databases, network policies, and backend/frontend deployments via the Helm chart:
+1. Update Chart dependencies:
+   ```bash
+   helm dependency update charts/shoppay
+   ```
+2. Deploy the Chart:
+   ```bash
+   helm upgrade --install shoppay charts/shoppay
+   ```
+
+#### Step 9: Verify Production Connectivity
+Run the verification script to run E2E scenarios:
+```bash
+export KONG_URL="http://192.168.1.113:30080"
+export FRONTEND_URL="http://192.168.1.113:30000"
+./scripts/verify-production.sh
+```
+
+---
+
+### 11.2 Complete Command Reference (Used & Operational)
+
+#### Kubernetes Cluster Inspection
+* **Get all pods across namespaces:**
+  ```bash
+  kubectl get pods -A
+  ```
+* **Get pods matching shoppay name:**
+  ```bash
+  kubectl get pods -A | grep shoppay
+  ```
+* **Describe a failing pod (e.g., product-service):**
+  ```bash
+  kubectl describe pod -n shoppay-product -l app.kubernetes.io/name=product-service
+  ```
+* **View application containers logs:**
+  ```bash
+  kubectl logs -n shoppay-product -l app.kubernetes.io/name=product-service -c product-service
+  ```
+* **View Vault Init container logs:**
+  ```bash
+  kubectl logs -n shoppay-product -l app.kubernetes.io/name=product-service -c vault-agent-init
+  ```
+* **Get HPA status:**
+  ```bash
+  kubectl get hpa -A
+  ```
+* **Get all NetworkPolicies:**
+  ```bash
+  kubectl get networkpolicies -A
+  ```
+
+#### Helm Operations
+* **Lint the Helm Chart:**
+  ```bash
+  helm lint charts/shoppay
+  ```
+* **Render Helm templates locally for verification:**
+  ```bash
+  helm template shoppay charts/shoppay > rendered.yaml
+  ```
+* **Check Helm release status:**
+  ```bash
+  helm list -A
+  ```
+* **Uninstall the release:**
+  ```bash
+  helm uninstall shoppay -n default
+  ```
+
+#### HashiCorp Vault Commands
+* **Inspect Vault Server Status:**
+  ```bash
+  kubectl exec -n shoppay-vault vault-0 -- vault status
+  ```
+* **Unseal Vault Pods:**
+  ```bash
+  kubectl exec -n shoppay-vault vault-0 -- vault operator unseal "$VAULT_UNSEAL_KEY"
+  ```
+* **Read secrets from Vault CLI:**
+  ```bash
+  kubectl exec -n shoppay-vault vault-0 -- vault kv get secret/shoppay/product/db-credentials
+  ```
+* **Inspect Kubernetes Auth Config in Vault:**
+  ```bash
+  kubectl exec -n shoppay-vault vault-0 -- vault read auth/kubernetes/config
+  ```
+
+#### Image Security Scanning (Trivy)
+* **Scan a local image directly:**
+  ```bash
+  trivy image --severity MEDIUM,HIGH,CRITICAL <image-name>:<tag>
+  ```
+* **Run project scan script:**
+  ```bash
+  ./scripts/scan-images.sh
+  ```
+
+#### E2E & Network Debugging
+* **Test network connection from inside a pod (e.g. testing database connection):**
+  ```bash
+  kubectl exec -n shoppay-product -c product-service deployment/product-service -- nc -zv shoppay-product-postgresql 5432
+  ```
+* **Test DNS resolution inside a pod:**
+  ```bash
+  kubectl exec -n shoppay-product -c product-service deployment/product-service -- nslookup shoppay-product-postgresql.shoppay-product.svc.cluster.local
+  ```
+* **Test frontend to gateway connectivity:**
+  ```bash
+  kubectl exec -n shoppay-frontend -c frontend deployment/frontend -- nc -zv kong-kong-proxy.shoppay-gateway.svc.cluster.local 80
+  ```
+* **Test admin login API via Kong proxy:**
+  ```bash
+  curl -fsS -X POST "http://192.168.1.113:30080/api/admin/login" \
+    -H "Content-Type: application/json" \
+    -d '{"username":"admin","password":"Admin@12345"}'
+  ```
