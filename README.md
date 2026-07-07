@@ -61,6 +61,7 @@ To enforce strict boundary controls and operational isolation, the cluster is se
 
 ### 1.3 Enterprise System Architecture Diagram
 The diagram below provides a comprehensive map of the system components, namespace boundaries, resources, network policies, databases, monitoring metrics scraping, dynamic secret injection pipelines, and user traffic routing:
+<img width="1825" height="1323" alt="diagram-export-7-7-2026-10_42_34-AM" src="https://github.com/user-attachments/assets/914739ae-c0a4-4d2a-99b3-67e71570888b" />
 
 ```mermaid
 graph TD
