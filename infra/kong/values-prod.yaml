@@ -1,0 +1,55 @@
+proxy:
+  type: LoadBalancer
+
+  loadBalancerIP: 192.168.1.240
+
+  http:
+    enabled: true
+    servicePort: 80
+
+  tls:
+    enabled: false
+
+admin:
+  enabled: true
+
+  type: ClusterIP
+  clusterIP: None
+
+  http:
+    enabled: false
+
+  tls:
+    enabled: true
+
+manager:
+  enabled: false
+
+portal:
+  enabled: false
+
+portalapi:
+  enabled: false
+
+env:
+  database: "off"
+  role: traditional
+  router_flavor: traditional
+
+  nginx_worker_processes: "2"
+
+  status_listen: "0.0.0.0:8100"
+
+  admin_listen: "0.0.0.0:8444 ssl"
+
+  proxy_access_log: /dev/stdout
+  proxy_error_log: /dev/stderr
+
+  admin_access_log: /dev/stdout
+  admin_error_log: /dev/stderr
+
+controller:
+  ingressController:
+    enabled: true
+    installCRDs: false
+    ingressClass: kong

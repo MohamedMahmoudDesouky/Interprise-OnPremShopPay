@@ -1,13 +1,15 @@
 proxy:
-  type: NodePort
+  type: LoadBalancer
+  loadBalancerIP: 192.168.1.240
+  annotations: {}
 
   http:
     enabled: true
     servicePort: 80
-    nodePort: 30080
 
   tls:
     enabled: false
+
 
 admin:
   enabled: true
