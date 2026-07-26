@@ -42,3 +42,5 @@ reports/trivy/**/*.json
 .docker/
 README.old.md
 .trivyignore
+infra/vault/.vault-keys.json
+infra/vault/.vault-keys.json

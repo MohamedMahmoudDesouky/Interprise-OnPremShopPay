@@ -1,7 +1,9 @@
 global:
   projectName: shoppay
   environment: dev
-
+  postgresql:
+    auth:
+      password: "unused-see-per-service-existingSecret"
 namespaces:
   frontend: shoppay-frontend
   gateway: shoppay-gateway
@@ -587,6 +589,7 @@ networkPolicies:
 
 # إعدادات حزمة kube-prometheus-stack (alias: monitoring في Chart.yaml)
 monitoring:
+  enabled: true
   prometheus:
     prometheusSpec:
       serviceMonitorSelectorNilUsesHelmValues: false
