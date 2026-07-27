@@ -1,18 +1,4 @@
 # infra/vault/vault-dev-values.yaml
-#
-# Use this instead of vault-prod-values.yaml when running on a single-node
-# cluster (single-node kubeadm, minikube, kind, k3d, etc.).
-#
-# Why a separate file: vault-prod-values.yaml sets server.ha.replicas=3,
-# which makes the Vault Helm chart apply a hard pod anti-affinity rule
-# (one Vault pod per node). On a single-node cluster this leaves 2 of the
-# 3 pods permanently Pending ("does not have a host assigned"), because
-# there is no second node to schedule them on.
-#
-# This file keeps Raft integrated storage (so vault-init.sh and the rest
-# of the bootstrap flow work identically) but with a single replica, so
-# there is no anti-affinity conflict and no unreachable quorum.
-
 global:
   tlsDisable: true
 
