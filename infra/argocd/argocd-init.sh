@@ -48,7 +48,13 @@ kubectl apply --server-side --force-conflicts \
 # applicationset-controller, dex, redis, notifications-controller)
 # ---------------------------------------------------------------------------
 log "Applying ArgoCD core install manifests (ref: ${ARGOCD_VERSION_REF})..."
-kubectl apply -n "$ARGOCD_NS" \
+# --server-side avoids the classic "metadata.annotations: Too long" error:
+# install.yaml bundles a copy of the CRDs, and a plain client-side `kubectl
+# apply` tries to stuff the whole manifest into the
+# kubectl.kubernetes.io/last-applied-configuration annotation, which the
+# ApplicationSet CRD schema exceeds. Server-side apply tracks ownership via
+# field managers instead, so it has no such size limit.
+kubectl apply --server-side --force-conflicts -n "$ARGOCD_NS" \
   -f "https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION_REF}/manifests/install.yaml"
 
 # ---------------------------------------------------------------------------
